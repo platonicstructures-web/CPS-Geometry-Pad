@@ -335,30 +335,94 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     setProjectivePointsDistance(null);
     setTriangleAnalysis(null);
 
-    if (bondMode === 'calculated') {
-      // Set the global distance factor only when calculating bonds by distance.
-      $3Dmol.bondDistanceFactor = bondScale;
-      glViewer.current.addModel(modelData, 'pdb', { doBonds: true });
-    } else { // 'conect'
-      // In 'conect' mode, do not calculate bonds by distance. 3Dmol will use CONECT records.
-      // It's also good practice to reset the global factor to its default to avoid side-effects.
-      $3Dmol.bondDistanceFactor = 1.15;
-      glViewer.current.addModel(modelData, 'pdb', { doBonds: false });
-    }
-    
     const modelSpec = { model: 0 };
-    
-    const atoms = glViewer.current.getModel(0)?.selectedAtoms({});
-    if (atoms) {
-      setMetadata(prev => prev ? { ...prev, numAtoms: atoms.length } : null);
-    }
-
+    let atoms;
     const colorSchemeName = 'Jmol';
-    
     const stickStyle = {
       colorscheme: colorSchemeName,
       radius: stickRadius,
     };
+    
+    if (bondMode === 'calculated') {
+        $3Dmol.bondDistanceFactor = bondScale;
+        glViewer.current.addModel(modelData, 'pdb', { doBonds: true });
+        
+        atoms = glViewer.current.getModel(0)?.selectedAtoms({});
+        if (atoms) {
+          setMetadata(prev => prev ? { ...prev, numAtoms: atoms.length } : null);
+        }
+
+        switch(style) {
+          case 'line': glViewer.current.setStyle(modelSpec, { line: { colorscheme: colorSchemeName } }); break;
+          case 'stick': glViewer.current.setStyle(modelSpec, { stick: stickStyle }); break;
+          case 'sphere': glViewer.current.setStyle(modelSpec, { sphere: { radius: atomScale, colorscheme: colorSchemeName } }); break;
+          case 'ball and stick': glViewer.current.setStyle(modelSpec, { stick: stickStyle, sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName } }); break;
+          case 'hidden':
+            if (selectedAtoms.length > 0) {
+                const selectedSpec = { serial: selectedAtoms.map(a => a.serial) };
+                const unselectedSpec = { not: selectedSpec };
+                glViewer.current.setStyle(unselectedSpec, { line: { hidden: true }, stick: { hidden: true }, sphere: { hidden: true } });
+                glViewer.current.setStyle(selectedSpec, { stick: stickStyle, sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName } });
+            } else {
+                glViewer.current.setStyle({}, { line: { hidden: true }, stick: { hidden: true }, sphere: { hidden: true } });
+            }
+            break;
+          default: glViewer.current.setStyle(modelSpec, { stick: stickStyle }); break;
+        }
+    } else { // 'conect'
+        glViewer.current.addModel(modelData, 'pdb', { doBonds: false });
+
+        atoms = glViewer.current.getModel(0)?.selectedAtoms({});
+        if (atoms) {
+            setMetadata(prev => prev ? { ...prev, numAtoms: atoms.length } : null);
+            glViewer.current.setStyle(modelSpec, { sphere: { radius: atomScale, colorscheme: colorSchemeName } });
+
+            const atomMap = new Map<number, AtomSpec>();
+            atoms.forEach((atom: AtomSpec) => atomMap.set(atom.serial, atom));
+            const drawnBonds = new Set<string>();
+            modelData.split('\n').forEach(line => {
+                if (line.startsWith('CONECT')) {
+                    const serials = line.substring(6).trim().split(/\s+/).map(s => parseInt(s, 10));
+                    if (serials.length > 1) {
+                        const fromSerial = serials[0];
+                        const fromAtom = atomMap.get(fromSerial);
+                        if (fromAtom) {
+                            for (let i = 1; i < serials.length; i++) {
+                                const toSerial = serials[i];
+                                if (isNaN(toSerial)) continue;
+                                const toAtom = atomMap.get(toSerial);
+                                const bondKey = [fromSerial, toSerial].sort().join('-');
+                                if (toAtom && !drawnBonds.has(bondKey)) {
+                                    const midPoint = {
+                                        x: (fromAtom.x + toAtom.x) / 2,
+                                        y: (fromAtom.y + toAtom.y) / 2,
+                                        z: (fromAtom.z + toAtom.z) / 2
+                                    };
+                                    const fromColor = $3Dmol.elementColors[colorSchemeName][fromAtom.elem] || 0x808080;
+                                    const toColor = $3Dmol.elementColors[colorSchemeName][toAtom.elem] || 0x808080;
+                                    glViewer.current.addCylinder({
+                                        start: fromAtom,
+                                        end: midPoint,
+                                        radius: stickRadius,
+                                        fromCap: false, toCap: false,
+                                        color: fromColor
+                                    });
+                                     glViewer.current.addCylinder({
+                                        start: midPoint,
+                                        end: toAtom,
+                                        radius: stickRadius,
+                                        fromCap: false, toCap: false,
+                                        color: toColor
+                                    });
+                                    drawnBonds.add(bondKey);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
     
     let trianglePlaneNormal: { x: number, y: number, z: number } | null = null;
     let trianglePlaneD: number | null = null;
@@ -398,41 +462,6 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
         }
     } else if (selectionMode !== 'triangle') {
         setClosestNodeOnNormal(null);
-    }
-    
-    switch(style) {
-      case 'line': glViewer.current.setStyle(modelSpec, { line: { colorscheme: colorSchemeName } }); break;
-      case 'stick': glViewer.current.setStyle(modelSpec, { stick: stickStyle }); break;
-      case 'sphere': glViewer.current.setStyle(modelSpec, { sphere: { radius: atomScale, colorscheme: colorSchemeName } }); break;
-      case 'ball and stick': glViewer.current.setStyle(modelSpec, { stick: stickStyle, sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName } }); break;
-      case 'hidden':
-        if (selectedAtoms.length > 0) {
-            const selectedSpec = { serial: selectedAtoms.map(a => a.serial) };
-            const unselectedSpec = { not: selectedSpec };
-
-            // Explicitly hide the unselected atoms
-            glViewer.current.setStyle(unselectedSpec, {
-                line: { hidden: true },
-                stick: { hidden: true },
-                sphere: { hidden: true }
-            });
-            
-            // Explicitly show the selected atoms with the default style
-            glViewer.current.setStyle(selectedSpec, {
-                stick: stickStyle,
-                sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName }
-            });
-
-        } else {
-            // If no atoms are selected, hide everything
-            glViewer.current.setStyle({}, {
-                line: { hidden: true },
-                stick: { hidden: true },
-                sphere: { hidden: true }
-            });
-        }
-        break;
-      default: glViewer.current.setStyle(modelSpec, { stick: stickStyle }); break;
     }
     
     // --- GEOMETRIC GUIDES SETUP ---
