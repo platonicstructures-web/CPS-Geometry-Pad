@@ -1,17 +1,14 @@
-
 import React from 'react';
-import { PDB_FILES } from '../constants';
-import { DisplayStyle, ColorScheme, MoleculeMetadata } from '../types';
+import { DisplayStyle, MoleculeMetadata, SelectionMode, Lattice } from '../types';
+import PdbSelectionDialog from './PdbSelectionDialog';
+import SphericalShellsGenerator from './SphericalShellsGenerator';
 
 interface ControlsProps {
-  selectedPdbId: string | null;
-  onPdbIdChange: (id: string) => void;
   onLocalFileLoad: (data: string, name: string) => void;
+  onPdbUrlLoad: (url: string) => void;
   localPdbName: string | null;
   selectedStyle: DisplayStyle;
   onStyleChange: (style: DisplayStyle) => void;
-  selectedColorScheme: ColorScheme;
-  onColorSchemeChange: (scheme: ColorScheme) => void;
   atomScale: number;
   onAtomScaleChange: (scale: number) => void;
   stickRadius: number;
@@ -19,17 +16,30 @@ interface ControlsProps {
   bondScale: number;
   onBondScaleChange: (scale: number) => void;
   metadata: MoleculeMetadata | null;
+  projectivePointRadius: number;
+  onProjectivePointRadiusChange: (radius: number) => void;
+  lineRadius: number;
+  onLineRadiusChange: (radius: number) => void;
+  selectionMode: SelectionMode;
+  showProjectivePoints: boolean;
+  showProjectivePointsSet2: boolean;
+  showAntipodalProjectivePointsSet1: boolean;
+  showAntipodalProjectivePointsSet2: boolean;
+  lattice: Lattice;
+  onLatticeChange: (lattice: Lattice) => void;
+  onConvert: () => void;
+  triangleLatticeFactor: number;
+  onTriangleLatticeFactorChange: (factor: number) => void;
+  squareLatticeFactor: number;
+  onSquareLatticeFactorChange: (factor: number) => void;
 }
 
 const Controls: React.FC<ControlsProps> = ({
-  selectedPdbId,
-  onPdbIdChange,
   onLocalFileLoad,
+  onPdbUrlLoad,
   localPdbName,
   selectedStyle,
   onStyleChange,
-  selectedColorScheme,
-  onColorSchemeChange,
   atomScale,
   onAtomScaleChange,
   stickRadius,
@@ -37,20 +47,34 @@ const Controls: React.FC<ControlsProps> = ({
   bondScale,
   onBondScaleChange,
   metadata,
+  projectivePointRadius,
+  onProjectivePointRadiusChange,
+  lineRadius,
+  onLineRadiusChange,
+  selectionMode,
+  showProjectivePoints,
+  showProjectivePointsSet2,
+  showAntipodalProjectivePointsSet1,
+  showAntipodalProjectivePointsSet2,
+  lattice,
+  onLatticeChange,
+  onConvert,
+  triangleLatticeFactor,
+  onTriangleLatticeFactorChange,
+  squareLatticeFactor,
+  onSquareLatticeFactorChange,
 }) => {
+  const [pdbUrl, setPdbUrl] = React.useState('');
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isGeneratorOpen, setIsGeneratorOpen] = React.useState(false);
+
   const displayStyles: { style: DisplayStyle; label: string }[] = [
     { style: 'line', label: 'Lines' },
     { style: 'stick', label: 'Sticks' },
-    { style: 'sphere', label: 'Spheres' },
-    { style: 'ball and stick', label: 'Ball & Stick' },
+    { style: 'sphere', label: 'Balls' },
+    { style: 'ball and stick', label: 'Balls+Sticks' },
     { style: 'hidden', label: 'Hide' },
   ];
-  const colorSchemes: { scheme: ColorScheme; label: string }[] = [
-    { scheme: 'spectrum', label: 'Spectrum' },
-    { scheme: 'element', label: 'Element (CPK)' },
-    { scheme: 'residue', label: 'Residue' },
-  ];
-  const selectedPdb = PDB_FILES.find(p => p.id === selectedPdbId);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -71,160 +95,281 @@ const Controls: React.FC<ControlsProps> = ({
     }
     event.target.value = '';
   };
+  
+  const handleUrlLoadClick = () => {
+    if (pdbUrl.trim()) {
+      onPdbUrlLoad(pdbUrl.trim());
+      setPdbUrl(''); // Clear after attempting to load
+    }
+  };
+
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">
-      <div className="mb-2">
-        <label htmlFor="pdb-select" className="block text-lg font-semibold mb-2 text-cyan-400">
-          Select Platonic Structure
-        </label>
-        <select
-          id="pdb-select"
-          value={selectedPdbId ?? ''}
-          onChange={(e) => onPdbIdChange(e.target.value)}
-          className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition mb-2"
-        >
-          <optgroup label="Load from RCSB PDB">
-            {PDB_FILES.map((file) => (
-              <option key={file.id} value={file.id}>
-                {file.name} ({file.id})
-              </option>
-            ))}
-          </optgroup>
-        </select>
-
-        <label 
-            htmlFor="pdb-upload" 
-            className="w-full text-center cursor-pointer bg-gray-700 text-gray-300 hover:bg-gray-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 block"
-        >
-          Upload .pdb file
-        </label>
-        <input 
-          type="file" 
-          id="pdb-upload" 
-          className="hidden" 
-          accept=".pdb"
-          onChange={handleFileChange}
+    <React.Fragment>
+      <PdbSelectionDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSelect={(url) => setPdbUrl(url)}
+      />
+      {isGeneratorOpen && (
+        <SphericalShellsGenerator
+          onClose={() => setIsGeneratorOpen(false)}
+          onLoadPdb={(data, name) => {
+              onLocalFileLoad(data, name);
+              setIsGeneratorOpen(false);
+          }}
         />
+      )}
+      <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">
+        <div className="mb-2">
+          <label className="block text-lg font-semibold mb-2 text-cyan-400">
+            Load Platonic Structure:
+          </label>
+          <button
+            onClick={() => setIsGeneratorOpen(true)}
+            className="w-full text-center cursor-pointer bg-teal-600 text-white hover:bg-teal-500 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 block mb-2"
+          >
+            Spherical Shells...
+          </button>
+          <label 
+              htmlFor="pdb-upload" 
+              className="w-full text-center cursor-pointer bg-gray-700 text-gray-300 hover:bg-gray-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 block mb-2"
+          >
+            Load local .pdb file...
+          </label>
+          <input 
+            type="file" 
+            id="pdb-upload" 
+            className="hidden" 
+            accept=".pdb"
+            onChange={handleFileChange}
+          />
 
-        <div className="text-gray-400 text-sm mt-2 min-h-[40px]">
-          {localPdbName ? (
-            <p>Loaded from file: <span className="font-semibold text-gray-200">{localPdbName}</span></p>
-          ) : selectedPdb ? (
-            <p>{selectedPdb.description}</p>
-          ) : null}
+          <div className="mt-2 flex gap-2">
+              <input
+                  type="url"
+                  placeholder="Or load from URL..."
+                  value={pdbUrl}
+                  onChange={(e) => setPdbUrl(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleUrlLoadClick(); }}
+                  className="flex-grow bg-gray-700 border border-gray-600 text-white rounded-md p-1.5 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition"
+                  aria-label="Load PDB from URL"
+              />
+              <button
+                  onClick={() => setIsDialogOpen(true)}
+                  className="bg-gray-600 text-white hover:bg-gray-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 shrink-0"
+                  aria-label="Select PDB from list"
+              >
+                  Select...
+              </button>
+              <button
+                  onClick={handleUrlLoadClick}
+                  className="bg-cyan-600 text-white hover:bg-cyan-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 shrink-0"
+                  aria-label="Load URL"
+              >
+                  Load
+              </button>
+          </div>
+
+          <div className="text-gray-400 text-sm mt-2 min-h-[40px]">
+            {localPdbName ? (
+              <p>Loaded: <span className="font-semibold text-gray-200">{localPdbName}</span></p>
+            ) : (
+              <p>Please upload a structure or load from a URL.</p>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div>
-        <div className="bg-gray-700 p-3 rounded-md min-h-[120px] border border-gray-600 text-sm">
-          {metadata ? (
-            <ul className="text-gray-300">
-              <li><strong className="text-gray-200">Title:</strong> <span className="text-gray-400">{metadata.title}</span></li>
-              <li><strong className="text-gray-200">Classification:</strong> <span className="text-gray-400">{metadata.header}</span></li>
-              <li><strong className="text-gray-200">Source:</strong> <span className="text-gray-400">{metadata.source}</span></li>
-              <li><strong className="text-gray-200">Atoms:</strong> <span className="text-gray-400 font-mono">{metadata.numAtoms.toLocaleString()}</span></li>
-            </ul>
-          ) : (selectedPdbId || localPdbName) ? (
-            <p className="text-gray-500 italic">Loading metadata...</p>
-          ) : (
-            <p className="text-gray-500 italic">Select a molecule to view its information.</p>
-          )}
-        </div>
-      </div>
-
-      <div className="my-6">
-        <h3 className="text-lg font-semibold mb-3 text-cyan-400">Display Settings</h3>
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-semibold text-gray-300 mb-2">Style</h4>
-            <div className="flex flex-wrap gap-2">
-              {displayStyles.map(({ style, label }) => (
-                <button
-                  key={style}
-                  onClick={() => onStyleChange(style)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
-                    ${
-                      selectedStyle === style
-                        ? 'bg-cyan-500 text-white shadow-md'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                >
-                  {label}
-                </button>
-              ))}
+        <div className="mt-2 mb-4 p-3 bg-gray-700/50 rounded-md border border-gray-600">
+            <label className="block text-md font-semibold mb-2 text-cyan-400">
+              Lattice:
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="lattice-type"
+                    value="triangle"
+                    checked={lattice === 'triangle'}
+                    onChange={() => onLatticeChange('triangle')}
+                    className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                  />
+                  <span className="text-gray-300">Triangle</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="lattice-type"
+                    value="square"
+                    checked={lattice === 'square'}
+                    onChange={() => onLatticeChange('square')}
+                    className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                  />
+                  <span className="text-gray-300">Square</span>
+                </label>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-3">
+                <div>
+                    <label htmlFor="triangle-factor" className="block text-xs font-medium text-gray-400 mb-1">
+                        Triangle Factor
+                    </label>
+                    <input
+                        id="triangle-factor"
+                        type="number"
+                        step="0.01"
+                        value={triangleLatticeFactor}
+                        onChange={(e) => onTriangleLatticeFactorChange(parseFloat(e.target.value))}
+                        className="w-full bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="square-factor" className="block text-xs font-medium text-gray-400 mb-1">
+                        Square Factor
+                    </label>
+                    <input
+                        id="square-factor"
+                        type="number"
+                        step="0.01"
+                        value={squareLatticeFactor}
+                        onChange={(e) => onSquareLatticeFactorChange(parseFloat(e.target.value))}
+                        className="w-full bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
+                    />
+                </div>
+            </div>
+            <div className="mt-3">
+              <button
+                onClick={onConvert}
+                disabled={!localPdbName}
+                className="w-full bg-amber-600 text-white hover:bg-amber-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-amber-500 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed"
+              >
+                {lattice === 'triangle' ? 'Convert to Square' : 'Convert to Triangle'}
+              </button>
             </div>
           </div>
-          <div>
-            <h4 className="font-semibold text-gray-300 mb-2">Color Scheme</h4>
-            <div className="flex flex-wrap gap-2">
-              {colorSchemes.map(({scheme, label}) => (
-                <button
-                  key={scheme}
-                  onClick={() => onColorSchemeChange(scheme)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
-                    ${
-                      selectedColorScheme === scheme
-                        ? 'bg-cyan-500 text-white shadow-md'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                >
-                  {label}
-                </button>
-              ))}
+
+        <div>
+          <div className="bg-gray-700 p-3 rounded-md min-h-[120px] border border-gray-600 text-sm">
+            {metadata ? (
+              <ul className="text-gray-300">
+                <li><strong className="text-gray-200">Title:</strong> <span className="text-gray-400">{metadata.title}</span></li>
+                <li><strong className="text-gray-200">Classification:</strong> <span className="text-gray-400">{metadata.header}</span></li>
+                <li><strong className="text-gray-200">Source:</strong> <span className="text-gray-400">{metadata.source}</span></li>
+                <li><strong className="text-gray-200">Total Number Nodes:</strong> <span className="text-gray-400 font-mono">{metadata.numAtoms.toLocaleString()}</span></li>
+              </ul>
+            ) : localPdbName ? (
+              <p className="text-gray-500 italic">Loading metadata...</p>
+            ) : (
+              <p className="text-gray-500 italic">Select and load a Platonic Structure to explore and analyze.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="my-6">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <h3 className="text-lg font-semibold text-cyan-400 whitespace-nowrap">Display Style:</h3>
+              <div className="flex flex-wrap gap-2">
+                {displayStyles.map(({ style, label }) => (
+                  <button
+                    key={style}
+                    onClick={() => onStyleChange(style)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
+                      ${
+                        selectedStyle === style
+                          ? 'bg-cyan-500 text-white shadow-md'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="pt-2">
-            <label htmlFor="bond-scale-slider" className="block text-sm font-medium text-gray-300">
-              Bond Tolerance: <span className="font-bold text-cyan-400">{bondScale.toFixed(2)}</span>
-            </label>
-            <input
-              id="bond-scale-slider"
-              type="range"
-              min="1.0"
-              max="2.0"
-              step="0.05"
-              value={bondScale}
-              onChange={(e) => onBondScaleChange(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Increase to show bonds between more distant atoms.
-            </p>
-          </div>
-          <div>
-            <label htmlFor="atom-size-slider" className="block text-sm font-medium text-gray-300">
-              Atom Size: <span className="font-bold text-cyan-400">{atomScale.toFixed(2)}</span>
-            </label>
-            <input
-              id="atom-size-slider"
-              type="range"
-              min="0.1"
-              max="1.5"
-              step="0.05"
-              value={atomScale}
-              onChange={(e) => onAtomScaleChange(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-            />
-          </div>
-          <div>
-            <label htmlFor="stick-radius-slider" className="block text-sm font-medium text-gray-300">
-              Stick Radius: <span className="font-bold text-cyan-400">{stickRadius.toFixed(2)}</span>
-            </label>
-            <input
-              id="stick-radius-slider"
-              type="range"
-              min="0.05"
-              max="0.5"
-              step="0.01"
-              value={stickRadius}
-              onChange={(e) => onStickRadiusChange(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-            />
+            <div className="pt-2">
+              <label htmlFor="bond-scale-slider" className="block text-sm font-medium text-gray-300">
+                Stick Length Tolerance: <span className="font-bold text-cyan-400">{bondScale.toFixed(2)}</span>
+              </label>
+              <input
+                id="bond-scale-slider"
+                type="range"
+                min="1.0"
+                max="2.0"
+                step="0.05"
+                value={bondScale}
+                onChange={(e) => onBondScaleChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Increase to show connection between more distant nodes.
+              </p>
+            </div>
+            <div>
+              <label htmlFor="atom-size-slider" className="block text-sm font-medium text-gray-300">
+                Node Size: <span className="font-bold text-cyan-400">{atomScale.toFixed(2)}</span>
+              </label>
+              <input
+                id="atom-size-slider"
+                type="range"
+                min="0.1"
+                max="1.5"
+                step="0.05"
+                value={atomScale}
+                onChange={(e) => onAtomScaleChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="stick-radius-slider" className="block text-sm font-medium text-gray-300">
+                Stick Radius: <span className="font-bold text-cyan-400">{stickRadius.toFixed(2)}</span>
+              </label>
+              <input
+                id="stick-radius-slider"
+                type="range"
+                min="0.01"
+                max="0.5"
+                step="0.01"
+                value={stickRadius}
+                onChange={(e) => onStickRadiusChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+              />
+            </div>
+            <div className="pt-2">
+              <label htmlFor="projective-point-radius-slider" className="block text-sm font-medium text-gray-300">
+                Intersection Points Radius: <span className="font-bold text-cyan-400">{projectivePointRadius.toFixed(2)}</span>
+              </label>
+              <input
+                id="projective-point-radius-slider"
+                type="range"
+                min="0.05"
+                max="0.5"
+                step="0.01"
+                value={projectivePointRadius}
+                onChange={(e) => onProjectivePointRadiusChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!showProjectivePoints && !showProjectivePointsSet2 && !showAntipodalProjectivePointsSet1 && !showAntipodalProjectivePointsSet2 && !['node', 'distance', 'triangle'].includes(selectionMode)}
+              />
+            </div>
+            <div className="pt-2">
+              <label htmlFor="line-radius-slider" className="block text-sm font-medium text-gray-300">
+                Line Radius: <span className="font-bold text-cyan-400">{lineRadius.toFixed(2)}</span>
+              </label>
+              <input
+                id="line-radius-slider"
+                type="range"
+                min="0.01"
+                max="0.2"
+                step="0.01"
+                value={lineRadius}
+                onChange={(e) => onLineRadiusChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface TopBarProps {
@@ -6,11 +5,24 @@ interface TopBarProps {
   onViewerBackgroundChange: (bg: string) => void;
   showAxes: boolean;
   onShowAxesChange: (visible: boolean) => void;
+  showXYPlane: boolean;
+  onShowXYPlaneChange: (visible: boolean) => void;
+  showXZPlane: boolean;
+  onShowXZPlaneChange: (visible: boolean) => void;
+  showYZPlane: boolean;
+  onShowYZPlaneChange: (visible: boolean) => void;
   onViewChange: (view: string) => void;
   isLeftPanelVisible: boolean;
   onToggleLeftPanel: () => void;
   isRightPanelVisible: boolean;
   onToggleRightPanel: () => void;
+  isTranscriptionPanelVisible: boolean;
+  onToggleTranscriptionPanel: () => void;
+  activeLeftPanel: 'panel1' | 'panel2';
+  onActiveLeftPanelChange: (panel: 'panel1' | 'panel2') => void;
+  activeRightPanel: 'panel1' | 'panel2';
+  onActiveRightPanelChange: (panel: 'panel1' | 'panel2') => void;
+  onOpenUserGuide: () => void;
 }
 
 const backgroundOptions: { key: string; label: string }[] = [
@@ -34,18 +46,34 @@ const TopBar: React.FC<TopBarProps> = ({
   onViewerBackgroundChange,
   showAxes,
   onShowAxesChange,
+  showXYPlane,
+  onShowXYPlaneChange,
+  showXZPlane,
+  onShowXZPlaneChange,
+  showYZPlane,
+  onShowYZPlaneChange,
   onViewChange,
   isLeftPanelVisible,
   onToggleLeftPanel,
   isRightPanelVisible,
   onToggleRightPanel,
+  isTranscriptionPanelVisible,
+  onToggleTranscriptionPanel,
+  activeLeftPanel,
+  onActiveLeftPanelChange,
+  activeRightPanel,
+  onActiveRightPanelChange,
+  onOpenUserGuide,
 }) => {
+  const handleOpenUserGuide = () => {
+    onOpenUserGuide();
+  };
+
   return (
     <div className="bg-gray-800 p-2 border-b border-gray-700 shadow-md">
-      <div className="container mx-auto px-4 flex items-center justify-start gap-6 flex-wrap">
+      <div className="px-4 flex items-center justify-start gap-x-4 gap-y-2 flex-wrap">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-cyan-400 whitespace-nowrap">Panels:</h3>
-          <div className="flex flex-wrap gap-2 items-center">
+            <h3 className="text-sm font-semibold text-cyan-400 whitespace-nowrap">Panels:</h3>
             <button
                 onClick={onToggleLeftPanel}
                 className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
@@ -56,7 +84,7 @@ const TopBar: React.FC<TopBarProps> = ({
                   }`}
                 title={isLeftPanelVisible ? 'Hide Left Panel' : 'Show Left Panel'}
             >
-                {isLeftPanelVisible ? 'Hide Left' : 'Show Left'}
+                {isLeftPanelVisible ? 'Hide L' : 'Show L'}
             </button>
             <button
                 onClick={onToggleRightPanel}
@@ -68,13 +96,58 @@ const TopBar: React.FC<TopBarProps> = ({
                   }`}
                 title={isRightPanelVisible ? 'Hide Right Panel' : 'Show Right Panel'}
             >
-                {isRightPanelVisible ? 'Hide Right' : 'Show Right'}
+                {isRightPanelVisible ? 'Hide R' : 'Show R'}
             </button>
-          </div>
+            <div className="border-l border-gray-600 h-5 self-center"></div>
+            <span className="text-gray-300 text-sm font-medium">Left:</span>
+            <div className="flex items-center gap-1.5">
+              <label className="flex items-center space-x-1 cursor-pointer">
+                  <input type="radio" name="left-panel-toggle" checked={activeLeftPanel === 'panel1'} onChange={() => onActiveLeftPanelChange('panel1')} className="h-4 w-4 rounded-full bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                  <span className="text-gray-300 text-sm">1</span>
+              </label>
+              <label className="flex items-center space-x-1 cursor-pointer">
+                  <input type="radio" name="left-panel-toggle" checked={activeLeftPanel === 'panel2'} onChange={() => onActiveLeftPanelChange('panel2')} className="h-4 w-4 rounded-full bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                  <span className="text-gray-300 text-sm">2</span>
+              </label>
+            </div>
+            <div className="border-l border-gray-600 h-5 self-center"></div>
+            <span className="text-gray-300 text-sm font-medium">Right:</span>
+            <div className="flex items-center gap-1.5">
+              <label className="flex items-center space-x-1 cursor-pointer">
+                  <input type="radio" name="right-panel-toggle" checked={activeRightPanel === 'panel1'} onChange={() => onActiveRightPanelChange('panel1')} className="h-4 w-4 rounded-full bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                  <span className="text-gray-300 text-sm">1</span>
+              </label>
+              <label className="flex items-center space-x-1 cursor-pointer">
+                  <input type="radio" name="right-panel-toggle" checked={activeRightPanel === 'panel2'} onChange={() => onActiveRightPanelChange('panel2')} className="h-4 w-4 rounded-full bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                  <span className="text-gray-300 text-sm">2</span>
+              </label>
+            </div>
         </div>
+
+        <div className="border-l border-gray-600 h-6"></div>
+
+        <div className="flex items-center gap-3">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" checked={showAxes} onChange={(e) => onShowAxesChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+              <span className="text-gray-300 text-xs font-medium">Axes</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" checked={showXYPlane} onChange={(e) => onShowXYPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-600 focus:ring-offset-gray-800" />
+              <span className="text-gray-300 text-xs font-medium">XY Plane (Blue)</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" checked={showXZPlane} onChange={(e) => onShowXZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-600 focus:ring-offset-gray-800" />
+              <span className="text-gray-300 text-xs font-medium">XZ Plane (Green)</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" checked={showYZPlane} onChange={(e) => onShowYZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-red-500 focus:ring-red-600 focus:ring-offset-gray-800" />
+              <span className="text-gray-300 text-xs font-medium">YZ Plane (Red)</span>
+            </label>
+        </div>
+
         <div className="border-l border-gray-600 h-6"></div>
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-cyan-400 whitespace-nowrap">Viewer Background:</h3>
+          <h3 className="text-sm font-semibold text-cyan-400 whitespace-nowrap">Background:</h3>
           <div className="flex flex-wrap gap-2 items-center">
             {backgroundOptions.map(({ key, label }) => (
               <button
@@ -93,18 +166,6 @@ const TopBar: React.FC<TopBarProps> = ({
           </div>
         </div>
         <div className="border-l border-gray-600 h-6"></div>
-        <div>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showAxes}
-                onChange={(e) => onShowAxesChange(e.target.checked)}
-                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
-              />
-              <span className="text-gray-300 text-xs">Show Axes</span>
-            </label>
-        </div>
-        <div className="border-l border-gray-600 h-6"></div>
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-semibold text-cyan-400 whitespace-nowrap">View:</h3>
           <div className="flex flex-wrap gap-2 items-center">
@@ -119,6 +180,25 @@ const TopBar: React.FC<TopBarProps> = ({
             ))}
           </div>
         </div>
+        <div className="border-l border-gray-600 h-6"></div>
+         <button
+            onClick={onToggleTranscriptionPanel}
+            className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
+              ${
+                isTranscriptionPanelVisible
+                  ? 'bg-cyan-500 text-white shadow-md'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            title={isTranscriptionPanelVisible ? 'Hide Live Transcription' : 'Show Live Transcription'}
+        >
+            {isTranscriptionPanelVisible ? 'Hide T' : 'Show T'}
+        </button>
+         <button
+            onClick={handleOpenUserGuide}
+            className="px-3 py-1 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 bg-blue-600 text-white hover:bg-blue-500"
+          >
+            User Guide
+          </button>
       </div>
     </div>
   );

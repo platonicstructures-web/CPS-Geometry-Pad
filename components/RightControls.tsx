@@ -1,12 +1,21 @@
-
-import React from 'react';
-import { SelectionMode, AtomSpec } from '../types';
+import React, { useState, useEffect } from 'react';
+import { SelectionMode, IntersectionPoints, PlaneIntersectionPoint, Lattice } from '../types';
 
 interface RightControlsProps {
+  activeRightPanel: 'panel1' | 'panel2';
+  selectionMode: SelectionMode;
   showOriginSphere: boolean;
   onShowOriginSphereChange: (visible: boolean) => void;
   originSphereOpacity: number;
   onOriginSphereOpacityChange: (opacity: number) => void;
+  ellipticalRadiusInput: number;
+  onEllipticalRadiusInputChange: (value: number) => void;
+  isolateNodesOnEllipticalSphere: boolean;
+  onIsolateNodesOnEllipticalSphereChange: (isolate: boolean) => void;
+  hideNodesOutsideEllipticalSphere: boolean;
+  onHideNodesOutsideEllipticalSphereChange: (hide: boolean) => void;
+  isolatedNodeCount: number | null;
+  visibleNodeCount: number | null;
   showSphere2: boolean;
   onShowSphere2Change: (visible: boolean) => void;
   sphere2Opacity: number;
@@ -17,27 +26,144 @@ interface RightControlsProps {
   onCylinderRadiusChange: (radius: number) => void;
   cylinderHeight: number;
   onCylinderHeightChange: (height: number) => void;
-  selectionMode: SelectionMode;
-  onSelectionModeChange: (mode: SelectionMode) => void;
-  onClearSelection: () => void;
-  selectedAtoms: AtomSpec[];
-  selectedProjectivePoint: {x: number, y: number, z: number} | null;
-  distances: number[] | null;
-  normalLineLength: number;
-  onNormalLineLengthChange: (length: number) => void;
+  cylinderAzimuth: number;
+  onCylinderAzimuthChange: (angle: number) => void;
+  cylinderInclination: number;
+  onCylinderInclinationChange: (angle: number) => void;
   showCpsLines: boolean;
   onShowCpsLinesChange: (visible: boolean) => void;
   showProjectivePoints: boolean;
   onShowProjectivePointsChange: (visible: boolean) => void;
-  lineRadius: number;
-  onLineRadiusChange: (radius: number) => void;
+  showCpsLinesSet2: boolean;
+  onShowCpsLinesSet2Change: (visible: boolean) => void;
+  showProjectivePointsSet2: boolean;
+  onShowProjectivePointsSet2Change: (visible: boolean) => void;
+  showAntipodalSphere: boolean;
+  onShowAntipodalSphereChange: (visible: boolean) => void;
+  showAntipodalPlane: boolean;
+  onShowAntipodalPlaneChange: (visible: boolean) => void;
+  showAntipodalProjectivePointsSet1: boolean;
+  onShowAntipodalProjectivePointsSet1Change: (visible: boolean) => void;
+  showAntipodalProjectivePointsSet2: boolean;
+  onShowAntipodalProjectivePointsSet2Change: (visible: boolean) => void;
+  omega: { x: number; y: number; z: number; };
+  onOmegaChange: (axis: 'x' | 'y' | 'z', value: number) => void;
+  showInspCpsLines: boolean;
+  onShowInspCpsLinesChange: (visible: boolean) => void;
+  showInspPrimaryPoints: boolean;
+  onShowInspPrimaryPointsChange: (visible: boolean) => void;
+  showInspAntipodalPoints: boolean;
+  onShowInspAntipodalPointsChange: (visible: boolean) => void;
+  syntheticNodeInput: { x: string; y: string; z: string };
+  onSyntheticNodeInputChange: (axis: 'x' | 'y' | 'z', value: string) => void;
+  syntheticNodeInput2: { x: string; y: string; z: string };
+  onSyntheticNodeInput2Change: (axis: 'x' | 'y' | 'z', value: string) => void;
+  onCreateSyntheticNode: () => void;
+  onCreateSyntheticLine: () => void;
+  onClearSyntheticGeometry: () => void;
+  syntheticNodeIntersections: IntersectionPoints | null;
+  syntheticLinePoints: { p1: { x: number, y: number, z: number }, p2: { x: number, y: number, z: number } } | null;
+  syntheticLineIntersections: IntersectionPoints | null;
+  syntheticPlaneEquation: string | null;
+  syntheticLinePoint1Intersections: IntersectionPoints | null;
+  syntheticLinePoint2Intersections: IntersectionPoints | null;
+  primaryPlaneLineEquation: string | null;
+  antipodalPlaneLineEquation: string | null;
+  showSyntheticPlane: boolean;
+  onShowSyntheticPlaneChange: (visible: boolean) => void;
+  showSyntheticNodeDualPlane: boolean;
+  onShowSyntheticNodeDualPlaneChange: (visible: boolean) => void;
+  syntheticNodeDualLineEquation: string | null;
+  syntheticP1DualLineEquation: string | null;
+  syntheticP2DualLineEquation: string | null;
+  syntheticP1PlaneCoords: { x: number; y: number; z: number; } | null;
+  syntheticP2PlaneCoords: { x: number; y: number; z: number; } | null;
+  showSyntheticNodeDualLine: boolean;
+  onShowSyntheticNodeDualLineChange: (visible: boolean) => void;
+  syntheticNodeDualPlaneEquation: string | null;
+  onSaveCoordinates: () => void;
+  currentPdbName: string;
+  lattice: Lattice;
+  latticeFactor: number;
 }
 
+// Helper components for displaying intersection info (also used in ControlsPanel2)
+const isOrigin = (point: { coords: { x: number; y: number; z: number } }) => {
+  const { x, y, z } = point.coords;
+  return Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6 && Math.abs(z) < 1e-6;
+};
+const filterOrigin = (data: { coords: { x: number; y: number; z: number }; distance: number; }[] | null | undefined) => {
+  if (!data) return null;
+  const filtered = data.filter(p => !isOrigin(p));
+  return filtered.length > 0 ? filtered : null;
+};
+const IntersectionPointDisplay: React.FC<{
+  label: string;
+  data: { coords: { x: number; y: number; z: number }; distance: number; } | { coords: { x: number; y: number; z: number }; distance: number; }[] | null | undefined;
+  labelColor?: string;
+  latticeFactor: number;
+}> = ({ label, data, labelColor = 'text-gray-200', latticeFactor }) => {
+  const renderPoint = (point: { coords: { x: number; y: number; z: number }; distance: number }, key?: number) => (
+    <div key={key} className="pl-2">
+      ({(point.coords.x / latticeFactor).toFixed(3)}, {(point.coords.y / latticeFactor).toFixed(3)}, {(point.coords.z / latticeFactor).toFixed(3)}) D = {(point.distance / latticeFactor).toFixed(3)}
+    </div>
+  );
+  return (
+    <div>
+      <strong className={`${labelColor} block`}>{label}</strong>
+      {!data ? <div className="pl-2 text-gray-500">No intersection</div> : (Array.isArray(data) ? data.map((p, i) => renderPoint(p, i)) : renderPoint(data))}
+    </div>
+  );
+};
+const PlaneIntersectionDisplay: React.FC<{
+  label: string;
+  data: PlaneIntersectionPoint | null | undefined;
+  labelColor?: string;
+  latticeFactor: number;
+}> = ({ label, data, labelColor = 'text-gray-200', latticeFactor }) => {
+  if (!data) {
+    return (<div><strong className={`${labelColor} block`}>{label}</strong><div className="pl-2 text-gray-500">No intersection</div></div>);
+  }
+  return (
+    <div>
+      <strong className={`${labelColor} block`}>{label}</strong>
+      <div className="pl-2">
+        <span>Abs: ({(data.coords.x / latticeFactor).toFixed(3)}, {(data.coords.y / latticeFactor).toFixed(3)}, {(data.coords.z / latticeFactor).toFixed(3)}) D_o = {(data.distanceToOrigin / latticeFactor).toFixed(3)}</span>
+        <div className="pl-2 text-gray-400">
+          <span>Rel: ({(data.relativeCoords.x / latticeFactor).toFixed(3)}, {(data.relativeCoords.y / latticeFactor).toFixed(3)}) D_c = {(data.distanceToPlaneCenter / latticeFactor).toFixed(3)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+const IntersectionDetailsDisplay: React.FC<{ points: IntersectionPoints; title?: string; showNodeInfo?: boolean; latticeFactor: number; }> = ({ points, title, showNodeInfo = true, latticeFactor }) => (
+  <div className="space-y-1">
+    {showNodeInfo && title && <IntersectionPointDisplay label={title} data={points.node} latticeFactor={latticeFactor} />}
+    {showNodeInfo && <IntersectionPointDisplay label="Antipodal Point:" data={points.antipodalNode} latticeFactor={latticeFactor} />}
+    <PlaneIntersectionDisplay label="Primary Plane Intersection Point:" data={points.primaryPlane} labelColor="text-purple-300" latticeFactor={latticeFactor} />
+    <PlaneIntersectionDisplay label="Antipodal Plane Intersection Point:" data={points.antipodalPlane} labelColor="text-teal-300" latticeFactor={latticeFactor} />
+    <IntersectionPointDisplay label="Elliptical Sphere Intersection Point:" data={points.ellipticalSphere} latticeFactor={latticeFactor} />
+    <IntersectionPointDisplay label="Primary Riemann Intersection Point:" data={filterOrigin(points.primaryRiemannSphere)} labelColor="text-yellow-300" latticeFactor={latticeFactor} />
+    <IntersectionPointDisplay label="Antipodal Riemann Intersection Point:" data={filterOrigin(points.antipodalRiemannSphere)} labelColor="text-orange-300" latticeFactor={latticeFactor} />
+  </div>
+);
+
+
 const RightControls: React.FC<RightControlsProps> = ({
+  activeRightPanel,
+  selectionMode,
   showOriginSphere,
   onShowOriginSphereChange,
   originSphereOpacity,
   onOriginSphereOpacityChange,
+  ellipticalRadiusInput,
+  onEllipticalRadiusInputChange,
+  isolateNodesOnEllipticalSphere,
+  onIsolateNodesOnEllipticalSphereChange,
+  hideNodesOutsideEllipticalSphere,
+  onHideNodesOutsideEllipticalSphereChange,
+  isolatedNodeCount,
+  visibleNodeCount,
   showSphere2,
   onShowSphere2Change,
   sphere2Opacity,
@@ -48,84 +174,387 @@ const RightControls: React.FC<RightControlsProps> = ({
   onCylinderRadiusChange,
   cylinderHeight,
   onCylinderHeightChange,
-  selectionMode,
-  onSelectionModeChange,
-  onClearSelection,
-  selectedAtoms,
-  selectedProjectivePoint,
-  distances,
-  normalLineLength,
-  onNormalLineLengthChange,
+  cylinderAzimuth,
+  onCylinderAzimuthChange,
+  cylinderInclination,
+  onCylinderInclinationChange,
   showCpsLines,
   onShowCpsLinesChange,
   showProjectivePoints,
   onShowProjectivePointsChange,
-  lineRadius,
-  onLineRadiusChange,
+  showCpsLinesSet2,
+  onShowCpsLinesSet2Change,
+  showProjectivePointsSet2,
+  onShowProjectivePointsSet2Change,
+  showAntipodalSphere,
+  onShowAntipodalSphereChange,
+  showAntipodalPlane,
+  onShowAntipodalPlaneChange,
+  showAntipodalProjectivePointsSet1,
+  onShowAntipodalProjectivePointsSet1Change,
+  showAntipodalProjectivePointsSet2,
+  onShowAntipodalProjectivePointsSet2Change,
+  omega,
+  onOmegaChange,
+  showInspCpsLines,
+  onShowInspCpsLinesChange,
+  showInspPrimaryPoints,
+  onShowInspPrimaryPointsChange,
+  showInspAntipodalPoints,
+  onShowInspAntipodalPointsChange,
+  syntheticNodeInput,
+  onSyntheticNodeInputChange,
+  syntheticNodeInput2,
+  onSyntheticNodeInput2Change,
+  onCreateSyntheticNode,
+  onCreateSyntheticLine,
+  onClearSyntheticGeometry,
+  syntheticNodeIntersections,
+  syntheticLinePoints,
+  syntheticLineIntersections,
+  syntheticPlaneEquation,
+  syntheticLinePoint1Intersections,
+  syntheticLinePoint2Intersections,
+  primaryPlaneLineEquation,
+  antipodalPlaneLineEquation,
+  showSyntheticPlane,
+  onShowSyntheticPlaneChange,
+  showSyntheticNodeDualPlane,
+  onShowSyntheticNodeDualPlaneChange,
+  syntheticNodeDualLineEquation,
+  syntheticP1DualLineEquation,
+  syntheticP2DualLineEquation,
+  syntheticP1PlaneCoords,
+  syntheticP2PlaneCoords,
+  showSyntheticNodeDualLine,
+  onShowSyntheticNodeDualLineChange,
+  syntheticNodeDualPlaneEquation,
+  onSaveCoordinates,
+  currentPdbName,
+  lattice,
+  latticeFactor,
 }) => {
-  const selectionModes: { mode: SelectionMode; label: string }[] = [
-      { mode: 'none', label: 'Off' },
-      { mode: 'distance', label: 'Distance' },
-      { mode: 'triangle', label: 'Triangle' },
-      { mode: 'projective', label: 'Projective Point' },
-  ];
-  
-  const getSelectionInfoText = () => {
-    if (selectionMode === 'none') {
-      return 'Enable an interaction mode to begin.';
-    }
-    if (selectionMode === 'distance') {
-      return `Click on ${selectedAtoms.length < 2 ? 'two' : ''} atoms in the viewer.`;
-    }
-    if (selectionMode === 'triangle') {
-      return `Click on ${selectedAtoms.length < 3 ? 'three' : ''} atoms in the viewer.`;
-    }
-    if (selectionMode === 'projective') {
-        return 'Click a purple projective point on the plane.';
-    }
-    return '';
-  };
-  
-  const calculateAngles = (d12: number, d23: number, d13: number): [number, number, number] | null => {
-    // Law of Cosines to find angles
-    // Angle at atom 1 (opposite side d23)
-    const cosAngle1 = (d12 * d12 + d13 * d13 - d23 * d23) / (2 * d12 * d13);
-    // Angle at atom 2 (opposite side d13)
-    const cosAngle2 = (d12 * d12 + d23 * d23 - d13 * d13) / (2 * d12 * d23);
-    // Angle at atom 3 (opposite side d12)
-    const cosAngle3 = (d23 * d23 + d13 * d13 - d12 * d12) / (2 * d23 * d13);
-  
-    // Check for valid cosine values (-1 to 1). Floating point errors can push it just outside.
-    if ([cosAngle1, cosAngle2, cosAngle3].some(cos => cos < -1.00001 || cos > 1.00001)) {
-        return null; // Invalid triangle, e.g., collinear points
-    }
-  
-    const clamp = (val: number) => Math.max(-1, Math.min(1, val));
 
-    const angle1 = Math.acos(clamp(cosAngle1)) * (180 / Math.PI);
-    const angle2 = Math.acos(clamp(cosAngle2)) * (180 / Math.PI);
-    const angle3 = Math.acos(clamp(cosAngle3)) * (180 / Math.PI);
-  
-    return [angle1, angle2, angle3];
-  };
+  const [p1Eq, setP1Eq] = useState<string>('');
+  const [dirEq, setDirEq] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'line' | 'p1' | 'p2'>('line');
 
-  const angles = (distances && distances.length === 3) ? calculateAngles(distances[0], distances[1], distances[2]) : null;
+  useEffect(() => {
+    if (syntheticLinePoints) {
+      const { p1, p2 } = syntheticLinePoints;
+      const dir = { x: p2.x - p1.x, y: p2.y - p1.y, z: p2.z - p1.z };
 
+      const p1_norm = { x: p1.x / latticeFactor, y: p1.y / latticeFactor, z: p1.z / latticeFactor };
+      const dir_norm = { x: dir.x / latticeFactor, y: dir.y / latticeFactor, z: dir.z / latticeFactor };
+
+      setP1Eq(`(${p1_norm.x.toFixed(3)}, ${p1_norm.y.toFixed(3)}, ${p1_norm.z.toFixed(3)})`);
+      setDirEq(`(${dir_norm.x.toFixed(3)}, ${dir_norm.y.toFixed(3)}, ${dir_norm.z.toFixed(3)})`);
+    }
+  }, [syntheticLinePoints, latticeFactor]);
+
+  useEffect(() => {
+    if (!syntheticLineIntersections) {
+        setActiveTab('line');
+    }
+  }, [syntheticLineIntersections]);
+
+  if (activeRightPanel === 'panel2') {
+    const tabButtonClass = (isActive: boolean) => 
+      `px-3 py-1.5 text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 rounded-t-md flex-1 text-center disabled:opacity-50 disabled:cursor-not-allowed
+      ${isActive ? 'bg-gray-700/80 text-cyan-400' : 'bg-gray-900/50 text-gray-400 hover:bg-gray-700/50'}`;
+    
+    return (
+      <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">
+        <h3 className="text-lg font-semibold mb-3 text-cyan-400">Custom Geometry Inspector</h3>
+        <div className="space-y-2 text-sm text-gray-400">
+          <p>Define one point for a node, or two for a line. Vectors are normalized and placed on a sphere of radius {latticeFactor.toFixed(2)}.</p>
+        </div>
+        <div className="space-y-2 p-3 bg-gray-900/50 rounded-md mt-2">
+            <p className="text-sm font-semibold text-gray-300">Point 1 (P1)</p>
+            <div className="grid grid-cols-3 gap-3">
+                {(['x', 'y', 'z'] as const).map(axis => (
+                    <div key={axis} className="space-y-1">
+                        <div className="flex justify-between items-center">
+                            <label htmlFor={`synth-node-${axis}`} className="text-sm text-gray-300 uppercase font-bold">{axis}</label>
+                            <input
+                                type="number"
+                                id={`synth-node-${axis}`}
+                                value={syntheticNodeInput[axis]}
+                                onChange={e => onSyntheticNodeInputChange(axis, e.target.value)}
+                                className="w-16 bg-gray-700 border border-gray-600 text-white rounded-md p-1 text-xs text-center focus:ring-2 focus:ring-cyan-500 transition"
+                                step="0.1"
+                            />
+                        </div>
+                        <input
+                            type="range"
+                            min="-10"
+                            max="10"
+                            step="0.1"
+                            value={parseFloat(syntheticNodeInput[axis]) || 0}
+                            onChange={e => onSyntheticNodeInputChange(axis, e.target.value)}
+                            className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                            aria-label={`${axis} slider for point 1`}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+         <div className="space-y-2 p-3 bg-gray-900/50 rounded-md mt-2">
+            <p className="text-sm font-semibold text-gray-300">Point 2 (P2)</p>
+            <div className="grid grid-cols-3 gap-3">
+                {(['x', 'y', 'z'] as const).map(axis => (
+                     <div key={axis} className="space-y-1">
+                        <div className="flex justify-between items-center">
+                            <label htmlFor={`synth-node2-${axis}`} className="text-sm text-gray-300 uppercase font-bold">{axis}</label>
+                            <input
+                                type="number"
+                                id={`synth-node2-${axis}`}
+                                value={syntheticNodeInput2[axis]}
+                                onChange={e => onSyntheticNodeInput2Change(axis, e.target.value)}
+                                className="w-16 bg-gray-700 border border-gray-600 text-white rounded-md p-1 text-xs text-center focus:ring-2 focus:ring-cyan-500 transition"
+                                step="0.1"
+                            />
+                        </div>
+                        <input
+                            type="range"
+                            min="-10"
+                            max="10"
+                            step="0.1"
+                            value={parseFloat(syntheticNodeInput2[axis]) || 0}
+                            onChange={e => onSyntheticNodeInput2Change(axis, e.target.value)}
+                            className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                            aria-label={`${axis} slider for point 2`}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 mt-2">
+            <button onClick={onCreateSyntheticNode} className="bg-cyan-600 text-white hover:bg-cyan-500 px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500">Create Node</button>
+            <button onClick={onCreateSyntheticLine} className="bg-cyan-600 text-white hover:bg-cyan-500 px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500">Create Line</button>
+            <button onClick={onClearSyntheticGeometry} disabled={!syntheticNodeIntersections && !syntheticLineIntersections} className="bg-red-600 text-white hover:bg-red-700 px-2 py-1.5 rounded-md text-xs font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed">Clear</button>
+        </div>
+        
+        {syntheticNodeIntersections && (
+            <div className="mt-4 p-3 bg-gray-700/80 rounded-md border border-gray-600 text-sm font-mono text-gray-300 overflow-y-auto flex-grow">
+                <IntersectionDetailsDisplay
+                    points={syntheticNodeIntersections}
+                    title="Custom Node:"
+                    showNodeInfo={true}
+                    latticeFactor={latticeFactor}
+                />
+                {syntheticNodeDualLineEquation && (
+                  <>
+                    <div className="flex items-center justify-between mt-3">
+                      <h4 className="font-bold text-yellow-300 text-base">Projective Line (2D):</h4>
+                      <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                          <input
+                            type="checkbox"
+                            checked={showSyntheticNodeDualLine}
+                            onChange={(e) => onShowSyntheticNodeDualLineChange(e.target.checked)}
+                            className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                          />
+                          <span className="text-gray-300">Show</span>
+                      </label>
+                    </div>
+                    <div className="font-mono text-xs pl-2 text-yellow-200">
+                        <div>{syntheticNodeDualLineEquation}</div>
+                    </div>
+                  </>
+                )}
+                {syntheticNodeDualPlaneEquation && (
+                  <>
+                    <div className="flex items-center justify-between mt-3">
+                      <h4 className="font-bold text-yellow-300 text-base">Associated Plane (3D):</h4>
+                      <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                          <input
+                            type="checkbox"
+                            checked={showSyntheticNodeDualPlane}
+                            onChange={(e) => onShowSyntheticNodeDualPlaneChange(e.target.checked)}
+                            className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                          />
+                          <span className="text-gray-300">Show</span>
+                      </label>
+                    </div>
+                    <div className="font-mono text-xs pl-2 text-yellow-200">
+                        <div>{syntheticNodeDualPlaneEquation}</div>
+                    </div>
+                  </>
+                )}
+            </div>
+        )}
+        {syntheticLineIntersections && (
+            <div className="mt-4 flex flex-col flex-grow min-h-0">
+                <div className="flex border-b border-gray-600">
+                    <button onClick={() => setActiveTab('line')} className={tabButtonClass(activeTab === 'line')}>Line Info</button>
+                    <button onClick={() => setActiveTab('p1')} className={tabButtonClass(activeTab === 'p1')} disabled={!syntheticLinePoint1Intersections}>P1</button>
+                    <button onClick={() => setActiveTab('p2')} className={tabButtonClass(activeTab === 'p2')} disabled={!syntheticLinePoint2Intersections}>P2</button>
+                </div>
+                <div className="p-3 bg-gray-700/80 rounded-b-md border-x border-b border-gray-600 text-sm font-mono text-gray-300 overflow-y-auto flex-grow">
+                    {activeTab === 'line' && (
+                        <div>
+                            <div className="flex items-center justify-between">
+                                <h4 className="font-bold text-cyan-400 mb-1 text-base">Line Equation (Normalized):</h4>
+                                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                                    <input
+                                      type="checkbox"
+                                      checked={showSyntheticPlane}
+                                      onChange={(e) => onShowSyntheticPlaneChange(e.target.checked)}
+                                      className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                                    />
+                                    <span className="text-gray-300">Show 3D Plane</span>
+                                </label>
+                            </div>
+                            <div className="font-mono text-xs pl-2 text-lime-300">
+                                <div>P(t) = P1 + t * D</div>
+                                <div className="mt-1">P1: <span className="text-gray-300">{p1Eq}</span></div>
+                                <div>D:  <span className="text-gray-300">{dirEq}</span></div>
+                            </div>
+                            {syntheticPlaneEquation && (
+                              <>
+                                <h4 className="font-bold text-cyan-400 mt-3 mb-1 text-base">3D Plane Equation:</h4>
+                                <div className="font-mono text-xs pl-2 text-amber-300">
+                                    <div>{syntheticPlaneEquation}</div>
+                                </div>
+                              </>
+                            )}
+                            {syntheticP1PlaneCoords && syntheticP2PlaneCoords && (
+                              <>
+                                <h4 className="font-bold text-cyan-400 mt-3 mb-1 text-base">Points in Plane Coords (X'', Y''):</h4>
+                                <div className="font-mono text-xs pl-2 text-gray-300">
+                                    <div>P1: ({ (syntheticP1PlaneCoords.x / latticeFactor).toFixed(3) }, { (syntheticP1PlaneCoords.y / latticeFactor).toFixed(3) })</div>
+                                    <div>P2: ({ (syntheticP2PlaneCoords.x / latticeFactor).toFixed(3) }, { (syntheticP2PlaneCoords.y / latticeFactor).toFixed(3) })</div>
+                                </div>
+                              </>
+                            )}
+                            {primaryPlaneLineEquation && (
+                              <>
+                                <h4 className="font-bold text-purple-300 mt-3 mb-1 text-base">Primary Plane Line Eq (X',Y'):</h4>
+                                <div className="font-mono text-xs pl-2 text-purple-200">
+                                    <div>{primaryPlaneLineEquation}</div>
+                                </div>
+                              </>
+                            )}
+                            {antipodalPlaneLineEquation && (
+                              <>
+                                <h4 className="font-bold text-teal-300 mt-3 mb-1 text-base">Antipodal Plane Line Eq (X',Y'):</h4>
+                                <div className="font-mono text-xs pl-2 text-teal-200">
+                                    <div>{antipodalPlaneLineEquation}</div>
+                                </div>
+                              </>
+                            )}
+                            {(syntheticP1DualLineEquation || syntheticP2DualLineEquation) && (
+                              <>
+                                <h4 className="font-bold text-yellow-300 mt-3 mb-1 text-base">Dual Lines to P1/P2:</h4>
+                                <div className="font-mono text-xs pl-2 text-yellow-200">
+                                  {syntheticP1DualLineEquation && <div>P1: {syntheticP1DualLineEquation}</div>}
+                                  {syntheticP2DualLineEquation && <div>P2: {syntheticP2DualLineEquation}</div>}
+                                </div>
+                              </>
+                            )}
+
+                             <h4 className="font-bold text-cyan-400 mt-3 mb-1 text-base">Main Line Intersections:</h4>
+                            <IntersectionDetailsDisplay
+                                points={syntheticLineIntersections}
+                                showNodeInfo={false}
+                                latticeFactor={latticeFactor}
+                            />
+                        </div>
+                    )}
+                    {activeTab === 'p1' && syntheticLinePoint1Intersections && (
+                        <IntersectionDetailsDisplay
+                            points={syntheticLinePoint1Intersections}
+                            title="Point P1:"
+                            showNodeInfo={true}
+                            latticeFactor={latticeFactor}
+                        />
+                    )}
+                    {activeTab === 'p2' && syntheticLinePoint2Intersections && (
+                        <IntersectionDetailsDisplay
+                            points={syntheticLinePoint2Intersections}
+                            title="Point P2:"
+                            showNodeInfo={true}
+                            latticeFactor={latticeFactor}
+                        />
+                    )}
+                </div>
+            </div>
+        )}
+      </div>
+    );
+  }
+
+  const guidesVisible = showSphere2 || showCylinder || showAntipodalSphere || showAntipodalPlane;
+  const ellipticalRadiusFactor = latticeFactor.toFixed(2);
 
   return (
     <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3 text-cyan-400">Scene Settings</h3>
+       <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-cyan-400">Stereographic Projection:</h3>
          <div className="space-y-4">
+           <div className="p-3 bg-gray-700/50 rounded-md border border-gray-600">
+              <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-sm font-semibold text-cyan-400 whitespace-nowrap">3D</h3>
+                  {(['x', 'y', 'z'] as const).map(axis => (
+                  <div key={axis} className="flex items-center gap-1">
+                      <label htmlFor={`omega-${axis}-right`} className="text-xs text-gray-300 uppercase font-bold">{axis}:</label>
+                      <input
+                      type="number"
+                      id={`omega-${axis}-right`}
+                      value={omega[axis]}
+                      onChange={(e) => onOmegaChange(axis, parseFloat(e.target.value))}
+                      className="w-16 bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
+                      step="0.1"
+                      max="20"
+                      min="-20"
+                      />
+                  </div>
+                  ))}
+              </div>
+          </div>
           <div className="p-3 bg-gray-700/50 rounded-md border border-gray-600">
-            <label className="flex items-center space-x-2 cursor-pointer">
+            <div>
+              <label htmlFor="elliptical-radius-input" className="block text-sm font-medium text-gray-300">
+                Elliptical Sphere Radius Param (n): <span className="font-bold text-cyan-400">{ellipticalRadiusInput}</span>
+              </label>
+              <div className="text-xs text-gray-500 mb-1">Radius = {ellipticalRadiusFactor} * sqrt(n)</div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="elliptical-radius-slider"
+                  type="range"
+                  min="1"
+                  max="40"
+                  step="1"
+                  value={ellipticalRadiusInput}
+                  onChange={(e) => onEllipticalRadiusInputChange(parseInt(e.target.value, 10))}
+                  className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                />
+                <input
+                  id="elliptical-radius-input"
+                  type="number"
+                  min="1"
+                  max="40"
+                  step="1"
+                  value={ellipticalRadiusInput}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    if (!isNaN(val)) {
+                      onEllipticalRadiusInputChange(Math.max(1, Math.min(40, val)));
+                    }
+                  }}
+                  className="w-20 bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
+                />
+              </div>
+            </div>
+            <label className="flex items-center space-x-2 cursor-pointer mt-3">
               <input
                 type="checkbox"
                 checked={showOriginSphere}
                 onChange={(e) => onShowOriginSphereChange(e.target.checked)}
                 className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
               />
-              <span className="text-gray-300">Show Sphere - Elliptical Geometry</span>
+              <span className="text-gray-300">Show Sphere - Elliptical Geometry:</span>
             </label>
             <div className="mt-2">
               <label htmlFor="opacity-slider-s1" className="block text-sm font-medium text-gray-300">
@@ -143,18 +572,52 @@ const RightControls: React.FC<RightControlsProps> = ({
                 disabled={!showOriginSphere}
               />
             </div>
+            <div className="mt-2 space-y-2">
+                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                    <input
+                        type="checkbox"
+                        checked={isolateNodesOnEllipticalSphere}
+                        onChange={(e) => onIsolateNodesOnEllipticalSphereChange(e.target.checked)}
+                        className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                    />
+                    <span className="text-gray-300">
+                        Isolate nodes ON sphere surface
+                        {isolateNodesOnEllipticalSphere && isolatedNodeCount !== null && (
+                            <span className="ml-2 text-cyan-400 font-semibold">({isolatedNodeCount} nodes)</span>
+                        )}
+                    </span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer text-xs">
+                    <input
+                        type="checkbox"
+                        checked={hideNodesOutsideEllipticalSphere}
+                        onChange={(e) => onHideNodesOutsideEllipticalSphereChange(e.target.checked)}
+                        className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                    />
+                    <span className="text-gray-300">
+                        Hide nodes OUTSIDE sphere surface
+                        {hideNodesOutsideEllipticalSphere && visibleNodeCount !== null && (
+                            <span className="ml-2 text-cyan-400 font-semibold">({visibleNodeCount} visible)</span>
+                        )}
+                    </span>
+                </label>
+            </div>
           </div>
           
           <div className="p-3 bg-gray-700/50 rounded-md border border-gray-600">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showSphere2}
-                onChange={(e) => onShowSphere2Change(e.target.checked)}
-                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-yellow-500 focus:ring-yellow-600 focus:ring-offset-gray-800"
-              />
-              <span className="text-gray-300">Show Sphere - Hyperbolic Geometry</span>
-            </label>
+            <div>
+              <span className="text-gray-300">Show Riemann Sphere:</span>
+              <div className="flex gap-x-4 mt-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" checked={showSphere2} onChange={(e) => onShowSphere2Change(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-yellow-500 focus:ring-yellow-600 focus:ring-offset-gray-800" />
+                      <span className="text-gray-400 text-sm">Primary</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" checked={showAntipodalSphere} onChange={(e) => onShowAntipodalSphereChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-yellow-500 focus:ring-yellow-600 focus:ring-offset-gray-800" />
+                      <span className="text-gray-400 text-sm">Antipodal</span>
+                  </label>
+              </div>
+            </div>
             <div className="mt-2">
               <label htmlFor="opacity-slider-s2" className="block text-sm font-medium text-gray-300">
                 Opacity: <span className="font-bold text-yellow-400">{sphere2Opacity.toFixed(2)}</span>
@@ -168,51 +631,29 @@ const RightControls: React.FC<RightControlsProps> = ({
                 value={sphere2Opacity}
                 onChange={(e) => onSphere2OpacityChange(parseFloat(e.target.value))}
                 className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!showSphere2}
+                disabled={!showSphere2 && !showAntipodalSphere}
               />
             </div>
           </div>
-        </div>
-      </div>
-      
-       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3 text-cyan-400">Line Settings</h3>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="line-radius-slider" className="block text-sm font-medium text-gray-300">
-              Distance/Axis Line Radius: <span className="font-bold text-cyan-400">{lineRadius.toFixed(2)}</span>
-            </label>
-            <input
-              id="line-radius-slider"
-              type="range"
-              min="0.01"
-              max="0.2"
-              step="0.01"
-              value={lineRadius}
-              onChange={(e) => onLineRadiusChange(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-            />
-          </div>
-        </div>
-      </div>
-      
-       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3 text-cyan-400">Stereographic Projection</h3>
-         <div className="space-y-4">
+
           <div className="p-3 bg-gray-700/50 rounded-md border border-gray-600">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showCylinder}
-                onChange={(e) => onShowCylinderChange(e.target.checked)}
-                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
-              />
-              <span className="text-gray-300">Show Projected Plane</span>
-            </label>
+            <div className="flex items-center justify-between">
+                <span className="text-gray-300">Show Planes:</span>
+                <div className="flex gap-x-4">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" checked={showCylinder} onChange={(e) => onShowCylinderChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                        <span className="text-gray-400 text-sm">Primary</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" checked={showAntipodalPlane} onChange={(e) => onShowAntipodalPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                        <span className="text-gray-400 text-sm">Antipodal</span>
+                    </label>
+                </div>
+            </div>
             <div className="mt-3 space-y-3">
                <div>
                   <label htmlFor="cylinder-radius-slider" className="block text-sm font-medium text-gray-300">
-                    Radius: <span className="font-bold text-cyan-400">{cylinderRadius.toFixed(2)}</span>
+                    Planes Radius: <span className="font-bold text-cyan-400">{cylinderRadius.toFixed(2)}</span>
                   </label>
                   <input
                     id="cylinder-radius-slider"
@@ -223,7 +664,7 @@ const RightControls: React.FC<RightControlsProps> = ({
                     value={cylinderRadius}
                     onChange={(e) => onCylinderRadiusChange(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!showCylinder}
+                    disabled={!showCylinder && !showAntipodalPlane}
                   />
                 </div>
                 <div>
@@ -239,131 +680,167 @@ const RightControls: React.FC<RightControlsProps> = ({
                     value={cylinderHeight}
                     onChange={(e) => onCylinderHeightChange(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!showCylinder}
+                    disabled={!showCylinder && !showAntipodalPlane}
                   />
                 </div>
-            </div>
-            <div className="mt-3 space-y-2 border-t border-gray-600 pt-3">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showCpsLines}
-                    onChange={(e) => onShowCpsLinesChange(e.target.checked)}
-                    className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!showCylinder}
-                  />
-                  <span className="text-gray-300">Show CPS Lines</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={showProjectivePoints}
-                    onChange={(e) => onShowProjectivePointsChange(e.target.checked)}
-                    className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!showCylinder}
-                  />
-                  <span className="text-gray-300">Show Projective Points</span>
-                </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-       <div className="border-t border-gray-700 my-4"></div>
-
-      <div>
-        <h3 className="text-lg font-semibold mb-3 text-cyan-400">Measurements and Inspection</h3>
-        <div className="space-y-4">
-           <div className="flex flex-wrap gap-2">
-              {selectionModes.map(({ mode, label }) => (
-                <button
-                  key={mode}
-                  onClick={() => onSelectionModeChange(mode)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
-                    ${
-                      selectionMode === mode
-                        ? 'bg-cyan-500 text-white shadow-md'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          
-          <div className="bg-gray-700 p-3 rounded-md min-h-[120px] border border-gray-600">
-            <h4 className="font-semibold text-gray-300 mb-2">Selection Info</h4>
-            {selectionMode === 'projective' && selectedProjectivePoint ? (
-               <div>
-                <p className="font-bold text-cyan-400">Selected Point Coordinates:</p>
-                <p className="text-sm font-mono text-cyan-300">
-                  X: {(selectedProjectivePoint.x / 1.8).toFixed(3)}, Y: {(selectedProjectivePoint.y / 1.8).toFixed(3)}, Z: {(selectedProjectivePoint.z / 1.8).toFixed(2)}
-                </p>
-              </div>
-            ) : selectedAtoms.length > 0 ? (
-              <ul className="text-sm text-gray-400">
-                {selectedAtoms.map((atom, index) => (
-                  <li key={atom.serial}>Atom {index + 1}: {atom.atom} {atom.resi} (Chain {atom.chain})</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500">
-                {getSelectionInfoText()}
-              </p>
-            )}
-            {distances && distances.length > 0 && (
-              <div className="mt-2">
-                {selectionMode === 'distance' && (
-                  <p className="font-bold text-red-400">
-                    Distance: {(distances[0] / 1.8).toFixed(2)}
-                  </p>
-                )}
-                {selectionMode === 'triangle' && distances.length === 3 && angles && (
-                  <div className="space-y-3">
-                     <div className="font-bold text-red-400">
-                      <p>Distances / Angles:</p>
-                      <ul className="text-sm list-inside pl-2 text-red-300 font-normal font-mono">
-                        <li>1-2: {(distances[0] / 1.8).toFixed(2)} / <span className="text-yellow-300">{angles[2].toFixed(1)}°</span></li>
-                        <li>2-3: {(distances[1] / 1.8).toFixed(2)} / <span className="text-yellow-300">{angles[0].toFixed(1)}°</span></li>
-                        <li>1-3: {(distances[2] / 1.8).toFixed(2)} / <span className="text-yellow-300">{angles[1].toFixed(1)}°</span></li>
-                      </ul>
-                    </div>
-                     {selectedAtoms.length === 3 && (
-                      <div className="pt-2">
-                        <label htmlFor="normal-length-slider" className="block text-sm font-medium text-gray-300">
-                          Normal Line Length: <span className="font-bold text-cyan-400">{(normalLineLength / 1.8).toFixed(1)}</span>
-                        </label>
+                <div className="!mt-4 border-t border-gray-600 pt-3">
+                    <h4 className="text-sm font-semibold text-gray-300 mb-2">Plane/Sphere Orientation:</h4>
+                     <div>
+                      <label htmlFor="cylinder-azimuth-slider" className="block text-sm font-medium text-gray-300 mb-1">
+                        Azimuth: <span className="font-bold text-cyan-400">{cylinderAzimuth.toFixed(0)}°</span>
+                      </label>
+                      <div className="flex items-center gap-2">
                         <input
-                          id="normal-length-slider"
+                          id="cylinder-azimuth-slider"
                           type="range"
-                          min="1"
-                          max="10"
-                          step="0.1"
-                          value={normalLineLength}
-                          onChange={(e) => onNormalLineLengthChange(parseFloat(e.target.value))}
-                          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                          min="0"
+                          max="360"
+                          step="1"
+                          value={cylinderAzimuth}
+                          onChange={(e) => onCylinderAzimuthChange(parseFloat(e.target.value))}
+                          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!guidesVisible}
+                        />
+                        <input
+                          type="number"
+                          min="0"
+                          max="360"
+                          value={cylinderAzimuth.toFixed(0)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value);
+                            if (!isNaN(value)) {
+                                onCylinderAzimuthChange(Math.max(0, Math.min(360, value)));
+                            }
+                          }}
+                          className="w-20 bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!guidesVisible}
+                          aria-label="Azimuth value"
                         />
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+                    </div>
+                     <div className='mt-3'>
+                      <label htmlFor="cylinder-inclination-slider" className="block text-sm font-medium text-gray-300 mb-1">
+                        Inclination: <span className="font-bold text-cyan-400">{cylinderInclination.toFixed(0)}°</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          id="cylinder-inclination-slider"
+                          type="range"
+                          min="0"
+                          max="180"
+                          step="1"
+                          value={cylinderInclination}
+                          onChange={(e) => onCylinderInclinationChange(parseFloat(e.target.value))}
+                          className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!guidesVisible}
+                        />
+                        <input
+                          type="number"
+                          min="0"
+                          max="180"
+                          value={cylinderInclination.toFixed(0)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value);
+                            if (!isNaN(value)) {
+                                onCylinderInclinationChange(Math.max(0, Math.min(180, value)));
+                            }
+                          }}
+                          className="w-20 bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!guidesVisible}
+                          aria-label="Inclination value"
+                        />
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div className="mt-3 space-y-3 border-t border-gray-600 pt-3">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-x-2">
+                      <span className="text-gray-300 text-sm font-medium">CPS Lines Sets:</span>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showCpsLines}
+                          onChange={(e) => onShowCpsLinesChange(e.target.checked)}
+                          className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!guidesVisible}
+                        />
+                        <span className="text-gray-400 text-sm">1</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showCpsLinesSet2}
+                          onChange={(e) => onShowCpsLinesSet2Change(e.target.checked)}
+                          className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!guidesVisible}
+                        />
+                        <span className="text-gray-400 text-sm">2</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showInspCpsLines}
+                          onChange={(e) => onShowInspCpsLinesChange(e.target.checked)}
+                          className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                        />
+                        <span className="text-gray-400 text-sm">Insp</span>
+                      </label>
+                    </div>
+                    <button
+                        onClick={onSaveCoordinates}
+                        disabled={currentPdbName === 'No file loaded'}
+                        className="bg-blue-600 text-white hover:bg-blue-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    >
+                        Save Coord
+                    </button>
+                </div>
 
-          <button
-            onClick={onClearSelection}
-            disabled={selectedAtoms.length === 0 && !selectedProjectivePoint}
-            className="w-full px-3 py-1.5 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-red-500
-              disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed
-              bg-red-600 text-white hover:bg-red-700"
-          >
-            Clear Selection
-          </button>
+                <fieldset>
+                    <legend className="text-gray-300 text-sm font-medium sr-only">Projective Points Visibility</legend>
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <span className="text-gray-300 text-sm font-medium block mb-1">Primary Points Sets:</span>
+                            <div className="flex gap-x-2">
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input type="checkbox" checked={showProjectivePoints} onChange={(e) => onShowProjectivePointsChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" disabled={!showCylinder} />
+                                  <span className="text-gray-400 text-sm">1</span>
+                                </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input type="checkbox" checked={showProjectivePointsSet2} onChange={(e) => onShowProjectivePointsSet2Change(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" disabled={!showCylinder} />
+                                  <span className="text-gray-400 text-sm">2</span>
+                                </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input type="checkbox" checked={showInspPrimaryPoints} onChange={(e) => onShowInspPrimaryPointsChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                                  <span className="text-gray-400 text-sm">Insp</span>
+                                </label>
+                            </div>
+                        </div>
+                         <div>
+                            <span className="text-gray-300 text-sm font-medium block mb-1">Antipodal Points Sets:</span>
+                            <div className="flex gap-x-2">
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input type="checkbox" checked={showAntipodalProjectivePointsSet1} onChange={(e) => onShowAntipodalProjectivePointsSet1Change(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" disabled={!showAntipodalPlane} />
+                                  <span className="text-gray-400 text-sm">1</span>
+                                </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input type="checkbox" checked={showAntipodalProjectivePointsSet2} onChange={(e) => onShowAntipodalProjectivePointsSet2Change(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" disabled={!showAntipodalPlane} />
+                                  <span className="text-gray-400 text-sm">2</span>
+                                </label>
+                                 <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input type="checkbox" checked={showInspAntipodalPoints} onChange={(e) => onShowInspAntipodalPointsChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                                  <span className="text-gray-400 text-sm">Insp</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default RightControls;
+ export default RightControls;
