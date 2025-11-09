@@ -326,8 +326,8 @@ const Controls: React.FC<ControlsProps> = ({
               <input
                 id="bond-scale-slider"
                 type="range"
-                min="1.0"
-                max="2.0"
+                min="0.3"
+                max="5.0"
                 step="0.05"
                 value={bondScale}
                 onChange={(e) => onBondScaleChange(parseFloat(e.target.value))}
@@ -338,66 +338,70 @@ const Controls: React.FC<ControlsProps> = ({
                 (Only for 'Calculated' bonds). Increase to connect more distant nodes.
               </p>
             </div>
-            <div>
-              <label htmlFor="atom-size-slider" className="block text-sm font-medium text-gray-300">
-                Node Size: <span className="font-bold text-cyan-400">{atomScale.toFixed(2)}</span>
-              </label>
-              <input
-                id="atom-size-slider"
-                type="range"
-                min="0.1"
-                max="1.5"
-                step="0.05"
-                value={atomScale}
-                onChange={(e) => onAtomScaleChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-              />
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="atom-size-slider" className="block text-sm font-medium text-gray-300">
+                    Node Size: <span className="font-bold text-cyan-400">{atomScale.toFixed(2)}</span>
+                  </label>
+                  <input
+                    id="atom-size-slider"
+                    type="range"
+                    min="0.1"
+                    max="1.5"
+                    step="0.05"
+                    value={atomScale}
+                    onChange={(e) => onAtomScaleChange(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="stick-radius-slider" className="block text-sm font-medium text-gray-300">
+                    Stick Radius: <span className="font-bold text-cyan-400">{stickRadius.toFixed(2)}</span>
+                  </label>
+                  <input
+                    id="stick-radius-slider"
+                    type="range"
+                    min="0.01"
+                    max="0.5"
+                    step="0.01"
+                    value={stickRadius}
+                    onChange={(e) => onStickRadiusChange(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                  />
+                </div>
             </div>
-            <div>
-              <label htmlFor="stick-radius-slider" className="block text-sm font-medium text-gray-300">
-                Stick Radius: <span className="font-bold text-cyan-400">{stickRadius.toFixed(2)}</span>
-              </label>
-              <input
-                id="stick-radius-slider"
-                type="range"
-                min="0.01"
-                max="0.5"
-                step="0.01"
-                value={stickRadius}
-                onChange={(e) => onStickRadiusChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-              />
-            </div>
-            <div className="pt-2">
-              <label htmlFor="projective-point-radius-slider" className="block text-sm font-medium text-gray-300">
-                Intersection Points Radius: <span className="font-bold text-cyan-400">{projectivePointRadius.toFixed(2)}</span>
-              </label>
-              <input
-                id="projective-point-radius-slider"
-                type="range"
-                min="0.05"
-                max="0.5"
-                step="0.01"
-                value={projectivePointRadius}
-                onChange={(e) => onProjectivePointRadiusChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!showProjectivePoints && !showProjectivePointsSet2 && !showAntipodalProjectivePointsSet1 && !showAntipodalProjectivePointsSet2 && !['node', 'distance', 'triangle'].includes(selectionMode)}
-              />
-            </div>
-            <div className="pt-2">
-              <label htmlFor="line-radius-slider" className="block text-sm font-medium text-gray-300">
-                Line Radius: <span className="font-bold text-cyan-400">{lineRadius.toFixed(2)}</span>
-              </label>
-              <input
-                id="line-radius-slider"
-                type="range"
-                min="0.01"
-                max="0.2"
-                step="0.01"
-                value={lineRadius}
-                onChange={(e) => onLineRadiusChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-              />
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div>
+                <label htmlFor="projective-point-radius-slider" className="block text-sm font-medium text-gray-300">
+                  Intersect Radius: <span className="font-bold text-cyan-400">{projectivePointRadius.toFixed(2)}</span>
+                </label>
+                <input
+                  id="projective-point-radius-slider"
+                  type="range"
+                  min="0.05"
+                  max="0.5"
+                  step="0.01"
+                  value={projectivePointRadius}
+                  onChange={(e) => onProjectivePointRadiusChange(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!showProjectivePoints && !showProjectivePointsSet2 && !showAntipodalProjectivePointsSet1 && !showAntipodalProjectivePointsSet2 && !['node', 'distance', 'triangle'].includes(selectionMode)}
+                />
+              </div>
+              <div>
+                <label htmlFor="line-radius-slider" className="block text-sm font-medium text-gray-300">
+                  Line Radius: <span className="font-bold text-cyan-400">{lineRadius.toFixed(2)}</span>
+                </label>
+                <input
+                  id="line-radius-slider"
+                  type="range"
+                  min="0.01"
+                  max="0.2"
+                  step="0.01"
+                  value={lineRadius}
+                  onChange={(e) => onLineRadiusChange(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                />
+              </div>
             </div>
           </div>
         </div>
