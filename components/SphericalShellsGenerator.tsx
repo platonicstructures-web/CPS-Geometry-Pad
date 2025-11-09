@@ -247,21 +247,17 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
   }, [shells, latticeType, useExpansion, generatePdbContent]);
   
   const handleLoadToViewer = useCallback(() => {
-      const pdbContent = generatePdbContent(false);
-      if (!pdbContent) return;
+    const pdbContent = generatePdbContent(true);
+    if (!pdbContent) return;
 
-      const filenamePrefix = useExpansion ? 'PDB_' : 'PS_';
-      const sortedShells = [...shells.entries()].sort((a, b) => a[0] - b[0]);
-      const maxShell = sortedShells.length > 0 ? sortedShells[sortedShells.length - 1][0] : 0;
-      const latticeSuffix = latticeType === 'triangle' ? 'TR' : 'SQ';
-      const paddedShellNum = String(maxShell).padStart(3, '0');
-      const newFilename = `${filenamePrefix}Sphere_${paddedShellNum}_${latticeSuffix}.pdb`;
-      const title = `FULL SPHERE SHELLS 0-${maxShell} FOR ${latticeType.toUpperCase()} LATTICE`;
-      
-      const fullPdbContent = getPdbHeader(title, useExpansion) + pdbContent;
-      onLoadPdb(fullPdbContent, newFilename);
-
-  }, [shells, latticeType, useExpansion, generatePdbContent, onLoadPdb]);
+    const filenamePrefix = useExpansion ? 'PDB_' : 'PS_';
+    const latticeSuffix = latticeType === 'triangle' ? 'TR' : 'SQ';
+    const newFilename = `${filenamePrefix}Sphere_MUL_SHELLS_${latticeSuffix}.pdb`;
+    const title = `SELECTED SPHERE SHELLS FOR ${latticeType.toUpperCase()} LATTICE`;
+    
+    const fullPdbContent = getPdbHeader(title, useExpansion) + pdbContent;
+    onLoadPdb(fullPdbContent, newFilename);
+  }, [generatePdbContent, useExpansion, latticeType, onLoadPdb]);
 
   const handleSelectedShellsPdbDownload = useCallback(() => {
     const pdbContent = generatePdbContent(true);
