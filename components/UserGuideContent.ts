@@ -24,6 +24,7 @@ const contentHTML = `
   <h2>1. Getting Started: Loading a Structure</h2>
   <p>Before you can analyze a structure, you need to load one. You can do this from the <span class="panel-name">Left Panel (Tab 1)</span> in three ways:</p>
   <ul>
+    <li><strong>Spherical Shells...:</strong> Opens a generator to create complex spherical shell structures on the fly. You can configure the number of shells, lattice type, and other parameters, then load the result directly into the viewer.</li>
     <li><strong>Load local .pdb file:</strong> Click this button to open a file dialog and select a <code>.pdb</code> file from your computer.</li>
     <li><strong>Load from URL:</strong> Paste a direct link to a <code>.pdb</code> file into the input field and click "Load".</li>
     <li><strong>Select from Library:</strong> Click the "Select..." button to open a dialog with a curated list of platonic structures to load.</li>
@@ -54,19 +55,14 @@ const contentHTML = `
     <li><strong>Node Mode:</strong> Select a single node to view its properties and stereographic projection data.</li>
     <li><strong>Distance Mode:</strong> Select two nodes to measure the distance and angle between them.</li>
     <li><strong>Triangle Mode:</strong> Select three nodes to analyze the triangle they form, including its plane equation and projected properties.</li>
+    <li><strong>Inspection Mode:</strong> Select a projected point on one of the planes to analyze its relationship to the 3D structure and its inverted counterpart.</li>
   </ul>
 
   <h3>Hover Info</h3>
-  <p>As you move your mouse over nodes in the viewer, this box provides real-time information, such as the node's ID and its distance from the origin. In Distance or Triangle mode, it also shows live distances to already selected nodes.</p>
+  <p>As you move your mouse over nodes or projected points in the viewer, this box provides real-time information, such as the node's ID, its distance from the origin, or the 2D coordinates of the projected point.</p>
 
   <h3>Selection Info Panel</h3>
-  <p>Once you select nodes according to the current mode, this panel populates with detailed information. Use the tabs at the top to switch between views:</p>
-  <ul>
-    <li><strong>Node Tabs:</strong> Show detailed coordinates and intersection data for each selected node.</li>
-    <li><strong>Dist./Angles Tab:</strong> In Distance or Triangle mode, this shows measurements like distances, angles between nodes, and properties of the projected shapes.</li>
-    <li><strong>Projected Points Tab:</strong> Allows you to select a projected point on one of the planes and see its specific coordinates.</li>
-  </ul>
-  <p>The <strong>Save Info</strong> button compiles all the data from this panel into a text file for you to download.</p>
+  <p>Once you select elements according to the current mode, this panel populates with detailed information, including coordinates, distances, angles, plane equations, and intersection data with various geometric guides.</p>
 
   <h2>5. Stereographic Projection (<span class="panel-name">Right Panel - Tab 1</span>)</h2>
   <p>This panel controls the geometric guides used for stereographic projection. The core idea is to project points from a central origin (Omega) through the nodes of your structure onto a plane.</p>
@@ -89,7 +85,7 @@ const contentHTML = `
   <ul>
       <li><strong>Panels Buttons:</strong> Show or hide the left and right control panels to maximize viewer space.</li>
       <li><strong>Left/Right Panel Toggles:</strong> Switch between Tab 1 and Tab 2 for each respective panel.</li>
-      <li><strong>User Guide:</strong> Opens this guide in a new window.</li>
+      <li><strong>User Guide:</strong> Opens this guide.</li>
   </ul>
 `;
 
