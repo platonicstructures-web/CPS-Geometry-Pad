@@ -9,6 +9,7 @@ import TopBar from './components/TopBar';
 import LiveTranscription from './components/LiveTranscription';
 import ControlsPanel2 from './components/ControlsPanel2';
 import UserGuideDialog from './components/UserGuideDialog';
+import Resizer from './components/Resizer';
 
 // Vector math helpers
 const vec = (x: number, y: number, z: number) => ({ x, y, z });
@@ -114,6 +115,9 @@ const App: React.FC = () => {
   const [activeLeftPanel, setActiveLeftPanel] = useState<'panel1' | 'panel2'>('panel1');
   const [activeRightPanel, setActiveRightPanel] = useState<'panel1' | 'panel2'>('panel1');
   const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(320);
+  const [rightPanelWidth, setRightPanelWidth] = useState(320);
+  const [resizingPanel, setResizingPanel] = useState<'left' | 'right' | null>(null);
 
   // Synthetic Geometry state
   const [syntheticNodeInput, setSyntheticNodeInput] = useState({ x: '1', y: '0', z: '0' });
@@ -140,6 +144,46 @@ const App: React.FC = () => {
   const viewerRef = useRef<PdbViewerHandles>(null);
 
   const currentLatticeFactor = lattice === 'triangle' ? triangleLatticeFactor : squareLatticeFactor;
+
+  const handleMouseDown = useCallback((panel: 'left' | 'right') => (event: React.MouseEvent) => {
+      event.preventDefault();
+      setResizingPanel(panel);
+  }, []);
+
+  useEffect(() => {
+      const handleMouseMove = (event: MouseEvent) => {
+          if (!resizingPanel) return;
+
+          const minWidth = 280;
+          const maxWidth = 600;
+
+          if (resizingPanel === 'left') {
+              const newWidth = event.clientX;
+              setLeftPanelWidth(Math.max(minWidth, Math.min(newWidth, maxWidth)));
+          } else if (resizingPanel === 'right') {
+              const newWidth = window.innerWidth - event.clientX;
+              setRightPanelWidth(Math.max(minWidth, Math.min(newWidth, maxWidth)));
+          }
+      };
+
+      const handleMouseUp = () => {
+          setResizingPanel(null);
+      };
+
+      if (resizingPanel) {
+          window.addEventListener('mousemove', handleMouseMove);
+          window.addEventListener('mouseup', handleMouseUp);
+          document.body.style.cursor = 'col-resize';
+          document.body.style.userSelect = 'none';
+      }
+
+      return () => {
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+      };
+  }, [resizingPanel]);
 
   useEffect(() => {
     const calculate2DLineEquation = (p1_rel: { x: number, y: number } | undefined, p2_rel: { x: number, y: number } | undefined): string | null => {
@@ -571,100 +615,97 @@ const App: React.FC = () => {
         onOpenUserGuide={() => setIsUserGuideOpen(true)}
       />
       <main className="flex-1 px-4 py-2 min-h-0">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-full">
+        <div className="flex gap-4 h-full">
           {isLeftPanelVisible && (
-            <aside className="lg:col-span-2 h-full overflow-y-auto">
-              {activeLeftPanel === 'panel1' ? (
-                <Controls
-                  onLocalFileLoad={handleLocalFileLoad}
-                  onPdbUrlLoad={handlePdbUrlLoad}
-                  localPdbName={localPdbName}
-                  selectedStyle={selectedStyle}
-                  onStyleChange={setSelectedStyle}
-                  atomScale={atomScale}
-                  onAtomScaleChange={setAtomScale}
-                  stickRadius={stickRadius}
-                  onStickRadiusChange={setStickRadius}
-                  bondScale={bondScale}
-                  onBondScaleChange={setBondScale}
-                  metadata={metadata}
-                  projectivePointRadius={projectivePointRadius}
-                  onProjectivePointRadiusChange={setProjectivePointRadius}
-                  lineRadius={lineRadius}
-                  onLineRadiusChange={setLineRadius}
-                  selectionMode={selectionMode}
-                  showProjectivePoints={showProjectivePoints}
-                  showProjectivePointsSet2={showProjectivePointsSet2}
-                  showAntipodalProjectivePointsSet1={showAntipodalProjectivePointsSet1}
-                  showAntipodalProjectivePointsSet2={showAntipodalProjectivePointsSet2}
-                  lattice={lattice}
-                  onLatticeChange={setLattice}
-                  onConvert={handleConvert}
-                  triangleLatticeFactor={triangleLatticeFactor}
-                  onTriangleLatticeFactorChange={setTriangleLatticeFactor}
-                  squareLatticeFactor={squareLatticeFactor}
-                  onSquareLatticeFactorChange={setSquareLatticeFactor}
-                />
-              ) : (
-                <ControlsPanel2
-                  selectionMode={selectionMode}
-                  onSelectionModeChange={handleSelectionModeChange}
-                  onClearSelection={handleClearSelection}
-                  selectedAtoms={selectedAtoms}
-                  selectedProjectivePoint={selectedProjectivePoint}
-                  inspectionData={inspectionData}
-                  distances={distances}
-                  nodeAngle={nodeAngle}
-                  projectivePointsDistance={projectivePointsDistance}
-                  intersectionPoints={intersectionPoints}
-                  intersectionDistances={intersectionDistances}
-                  triangleAnalysis={triangleAnalysis}
-                  trianglePlaneEquation={trianglePlaneEquation}
-                  trianglePlaneAzimuth={trianglePlaneAzimuth}
-                  trianglePlaneInclination={trianglePlaneInclination}
-                  trianglePlaneDistanceToOrigin={trianglePlaneDistanceToOrigin}
-                  showTrianglePlane={showTrianglePlane}
-                  onShowTrianglePlaneChange={setShowTrianglePlane}
-                  hideNodesNotOnTrianglePlane={hideNodesNotOnTrianglePlane}
-                  onHideNodesNotOnTrianglePlaneChange={handleHideNodesNotOnTrianglePlaneChange}
-                  showParallelPlane={showParallelPlane}
-                  onShowParallelPlaneChange={setShowParallelPlane}
-                  parallelPlaneDistance={parallelPlaneDistance}
-                  onParallelPlaneDistanceChange={setParallelPlaneDistance}
-                  isolateNodesOnParallelPlane={isolateNodesOnParallelPlane}
-                  onIsolateNodesOnParallelPlaneChange={handleIsolateNodesOnParallelPlaneChange}
-                  normalLineLength={normalLineLength}
-                  onNormalLineLengthChange={setNormalLineLength}
-                  currentPdbName={currentPdbName}
-                  isProjectivePointModeActive={isProjectivePointModeActive}
-                  onSetProjectivePointModeActive={setIsProjectivePointModeActive}
-                  hoveredAtom={hoveredAtom}
-                  hoveredProjectivePoint={hoveredProjectivePoint}
-                  showHoveredAtomLabel={showHoveredAtomLabel}
-                  onShowHoveredAtomLabelChange={setShowHoveredAtomLabel}
-                  showHoveredAtomDistance={showHoveredAtomDistance}
-                  onShowHoveredAtomDistanceChange={setShowHoveredAtomDistance}
-                  closestNodeOnNormal={closestNodeOnNormal}
-                  lattice={lattice}
-                  activeInspectionTab={activeInspectionTab}
-                  onActiveInspectionTabChange={setActiveInspectionTab}
-                  showCalculatedInversionPoint={showCalculatedInversionPoint}
-                  onShowCalculatedInversionPointChange={setShowCalculatedInversionPoint}
-                  inversionType={inversionType}
-                  onInversionTypeChange={setInversionType}
-                  latticeFactor={currentLatticeFactor}
-                />
-              )}
-            </aside>
+            <>
+              <aside className="h-full overflow-y-auto flex-shrink-0" style={{ width: `${leftPanelWidth}px` }}>
+                {activeLeftPanel === 'panel1' ? (
+                  <Controls
+                    onLocalFileLoad={handleLocalFileLoad}
+                    onPdbUrlLoad={handlePdbUrlLoad}
+                    localPdbName={localPdbName}
+                    selectedStyle={selectedStyle}
+                    onStyleChange={setSelectedStyle}
+                    atomScale={atomScale}
+                    onAtomScaleChange={setAtomScale}
+                    stickRadius={stickRadius}
+                    onStickRadiusChange={setStickRadius}
+                    bondScale={bondScale}
+                    onBondScaleChange={setBondScale}
+                    metadata={metadata}
+                    projectivePointRadius={projectivePointRadius}
+                    onProjectivePointRadiusChange={setProjectivePointRadius}
+                    lineRadius={lineRadius}
+                    onLineRadiusChange={setLineRadius}
+                    selectionMode={selectionMode}
+                    showProjectivePoints={showProjectivePoints}
+                    showProjectivePointsSet2={showProjectivePointsSet2}
+                    showAntipodalProjectivePointsSet1={showAntipodalProjectivePointsSet1}
+                    showAntipodalProjectivePointsSet2={showAntipodalProjectivePointsSet2}
+                    lattice={lattice}
+                    onLatticeChange={setLattice}
+                    onConvert={handleConvert}
+                    triangleLatticeFactor={triangleLatticeFactor}
+                    onTriangleLatticeFactorChange={setTriangleLatticeFactor}
+                    squareLatticeFactor={squareLatticeFactor}
+                    onSquareLatticeFactorChange={setSquareLatticeFactor}
+                  />
+                ) : (
+                  <ControlsPanel2
+                    selectionMode={selectionMode}
+                    onSelectionModeChange={handleSelectionModeChange}
+                    onClearSelection={handleClearSelection}
+                    selectedAtoms={selectedAtoms}
+                    selectedProjectivePoint={selectedProjectivePoint}
+                    inspectionData={inspectionData}
+                    distances={distances}
+                    nodeAngle={nodeAngle}
+                    projectivePointsDistance={projectivePointsDistance}
+                    intersectionPoints={intersectionPoints}
+                    intersectionDistances={intersectionDistances}
+                    triangleAnalysis={triangleAnalysis}
+                    trianglePlaneEquation={trianglePlaneEquation}
+                    trianglePlaneAzimuth={trianglePlaneAzimuth}
+                    trianglePlaneInclination={trianglePlaneInclination}
+                    trianglePlaneDistanceToOrigin={trianglePlaneDistanceToOrigin}
+                    showTrianglePlane={showTrianglePlane}
+                    onShowTrianglePlaneChange={setShowTrianglePlane}
+                    hideNodesNotOnTrianglePlane={hideNodesNotOnTrianglePlane}
+                    onHideNodesNotOnTrianglePlaneChange={handleHideNodesNotOnTrianglePlaneChange}
+                    showParallelPlane={showParallelPlane}
+                    onShowParallelPlaneChange={setShowParallelPlane}
+                    parallelPlaneDistance={parallelPlaneDistance}
+                    onParallelPlaneDistanceChange={setParallelPlaneDistance}
+                    isolateNodesOnParallelPlane={isolateNodesOnParallelPlane}
+                    onIsolateNodesOnParallelPlaneChange={handleIsolateNodesOnParallelPlaneChange}
+                    normalLineLength={normalLineLength}
+                    onNormalLineLengthChange={setNormalLineLength}
+                    currentPdbName={currentPdbName}
+                    isProjectivePointModeActive={isProjectivePointModeActive}
+                    onSetProjectivePointModeActive={setIsProjectivePointModeActive}
+                    hoveredAtom={hoveredAtom}
+                    hoveredProjectivePoint={hoveredProjectivePoint}
+                    showHoveredAtomLabel={showHoveredAtomLabel}
+                    onShowHoveredAtomLabelChange={setShowHoveredAtomLabel}
+                    showHoveredAtomDistance={showHoveredAtomDistance}
+                    onShowHoveredAtomDistanceChange={setShowHoveredAtomDistance}
+                    closestNodeOnNormal={closestNodeOnNormal}
+                    lattice={lattice}
+                    activeInspectionTab={activeInspectionTab}
+                    onActiveInspectionTabChange={setActiveInspectionTab}
+                    showCalculatedInversionPoint={showCalculatedInversionPoint}
+                    onShowCalculatedInversionPointChange={setShowCalculatedInversionPoint}
+                    inversionType={inversionType}
+                    onInversionTypeChange={setInversionType}
+                    latticeFactor={currentLatticeFactor}
+                  />
+                )}
+              </aside>
+              <Resizer onMouseDown={handleMouseDown('left')} />
+            </>
           )}
 
-          <div className={`
-            ${isLeftPanelVisible && isRightPanelVisible ? 'lg:col-span-8' : ''}
-            ${isLeftPanelVisible && !isRightPanelVisible ? 'lg:col-span-10' : ''}
-            ${!isLeftPanelVisible && isRightPanelVisible ? 'lg:col-span-10' : ''}
-            ${!isLeftPanelVisible && !isRightPanelVisible ? 'lg:col-span-12' : ''}
-            h-full
-          `}>
+          <div className="flex-grow h-full min-w-0">
             {isLoading && (
               <div className="absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-10">
                 <p className="text-xl text-cyan-400 animate-pulse">Loading Model...</p>
@@ -774,93 +815,96 @@ const App: React.FC = () => {
           </div>
 
           {isRightPanelVisible && (
-            <aside className="lg:col-span-2 h-full overflow-y-auto">
-              <RightControls
-                activeRightPanel={activeRightPanel}
-                selectionMode={selectionMode}
-                showOriginSphere={showOriginSphere}
-                onShowOriginSphereChange={setShowOriginSphere}
-                originSphereOpacity={originSphereOpacity}
-                onOriginSphereOpacityChange={setOriginSphereOpacity}
-                ellipticalRadiusInput={ellipticalRadiusInput}
-                onEllipticalRadiusInputChange={setEllipticalRadiusInput}
-                isolateNodesOnEllipticalSphere={isolateNodesOnEllipticalSphere}
-                onIsolateNodesOnEllipticalSphereChange={handleIsolateNodesOnEllipticalSphereChange}
-                hideNodesOutsideEllipticalSphere={hideNodesOutsideEllipticalSphere}
-                onHideNodesOutsideEllipticalSphereChange={handleHideNodesOutsideEllipticalSphereChange}
-                isolatedNodeCount={isolatedNodeCount}
-                visibleNodeCount={visibleNodeCount}
-                showSphere2={showSphere2}
-                onShowSphere2Change={setShowSphere2}
-                sphere2Opacity={sphere2Opacity}
-                onSphere2OpacityChange={setSphere2Opacity}
-                showCylinder={showCylinder}
-                onShowCylinderChange={setShowCylinder}
-                cylinderRadius={cylinderRadius}
-                onCylinderRadiusChange={setCylinderRadius}
-                cylinderHeight={cylinderHeight}
-                onCylinderHeightChange={setCylinderHeight}
-                cylinderAzimuth={cylinderAzimuth}
-                onCylinderAzimuthChange={setCylinderAzimuth}
-                cylinderInclination={cylinderInclination}
-                onCylinderInclinationChange={setCylinderInclination}
-                showCpsLines={showCpsLines}
-                onShowCpsLinesChange={setShowCpsLines}
-                showProjectivePoints={showProjectivePoints}
-                onShowProjectivePointsChange={setShowProjectivePoints}
-                showCpsLinesSet2={showCpsLinesSet2}
-                onShowCpsLinesSet2Change={setShowCpsLinesSet2}
-                showProjectivePointsSet2={showProjectivePointsSet2}
-                onShowProjectivePointsSet2Change={setShowProjectivePointsSet2}
-                showAntipodalSphere={showAntipodalSphere}
-                onShowAntipodalSphereChange={setShowAntipodalSphere}
-                showAntipodalPlane={showAntipodalPlane}
-                onShowAntipodalPlaneChange={setShowAntipodalPlane}
-                showAntipodalProjectivePointsSet1={showAntipodalProjectivePointsSet1}
-                onShowAntipodalProjectivePointsSet1Change={setShowAntipodalProjectivePointsSet1}
-                showAntipodalProjectivePointsSet2={showAntipodalProjectivePointsSet2}
-                onShowAntipodalProjectivePointsSet2Change={setShowAntipodalProjectivePointsSet2}
-                omega={omega}
-                onOmegaChange={handleOmegaChange}
-                showInspCpsLines={showInspCpsLines}
-                onShowInspCpsLinesChange={setShowInspCpsLines}
-                showInspPrimaryPoints={showInspPrimaryPoints}
-                onShowInspPrimaryPointsChange={setShowInspPrimaryPoints}
-                showInspAntipodalPoints={showInspAntipodalPoints}
-                onShowInspAntipodalPointsChange={setShowInspAntipodalPoints}
-                syntheticNodeInput={syntheticNodeInput}
-                onSyntheticNodeInputChange={handleSyntheticNodeInputChange}
-                syntheticNodeInput2={syntheticNodeInput2}
-                onSyntheticNodeInput2Change={handleSyntheticNodeInput2Change}
-                onCreateSyntheticNode={handleCreateSyntheticNode}
-                onCreateSyntheticLine={handleCreateSyntheticLine}
-                onClearSyntheticGeometry={handleClearSyntheticGeometry}
-                syntheticNodeIntersections={syntheticNodeIntersections}
-                syntheticLinePoints={syntheticLinePoints}
-                syntheticLineIntersections={syntheticLineIntersections}
-                syntheticPlaneEquation={syntheticPlaneEquation}
-                syntheticLinePoint1Intersections={syntheticLinePoint1Intersections}
-                syntheticLinePoint2Intersections={syntheticLinePoint2Intersections}
-                primaryPlaneLineEquation={primaryPlaneLineEquation}
-                antipodalPlaneLineEquation={antipodalPlaneLineEquation}
-                showSyntheticPlane={showSyntheticPlane}
-                onShowSyntheticPlaneChange={setShowSyntheticPlane}
-                showSyntheticNodeDualPlane={showSyntheticNodeDualPlane}
-                onShowSyntheticNodeDualPlaneChange={setShowSyntheticNodeDualPlane}
-                syntheticNodeDualLineEquation={syntheticNodeDualLineEquation}
-                syntheticP1DualLineEquation={syntheticP1DualLineEquation}
-                syntheticP2DualLineEquation={syntheticP2DualLineEquation}
-                syntheticP1PlaneCoords={syntheticP1PlaneCoords}
-                syntheticP2PlaneCoords={syntheticP2PlaneCoords}
-                showSyntheticNodeDualLine={showSyntheticNodeDualLine}
-                onShowSyntheticNodeDualLineChange={setShowSyntheticNodeDualLine}
-                syntheticNodeDualPlaneEquation={syntheticNodeDualPlaneEquation}
-                onSaveCoordinates={handleSaveCoordinates}
-                currentPdbName={currentPdbName}
-                lattice={lattice}
-                latticeFactor={currentLatticeFactor}
-              />
-            </aside>
+            <>
+              <Resizer onMouseDown={handleMouseDown('right')} />
+              <aside className="h-full overflow-y-auto flex-shrink-0" style={{ width: `${rightPanelWidth}px` }}>
+                <RightControls
+                  activeRightPanel={activeRightPanel}
+                  selectionMode={selectionMode}
+                  showOriginSphere={showOriginSphere}
+                  onShowOriginSphereChange={setShowOriginSphere}
+                  originSphereOpacity={originSphereOpacity}
+                  onOriginSphereOpacityChange={setOriginSphereOpacity}
+                  ellipticalRadiusInput={ellipticalRadiusInput}
+                  onEllipticalRadiusInputChange={setEllipticalRadiusInput}
+                  isolateNodesOnEllipticalSphere={isolateNodesOnEllipticalSphere}
+                  onIsolateNodesOnEllipticalSphereChange={handleIsolateNodesOnEllipticalSphereChange}
+                  hideNodesOutsideEllipticalSphere={hideNodesOutsideEllipticalSphere}
+                  onHideNodesOutsideEllipticalSphereChange={handleHideNodesOutsideEllipticalSphereChange}
+                  isolatedNodeCount={isolatedNodeCount}
+                  visibleNodeCount={visibleNodeCount}
+                  showSphere2={showSphere2}
+                  onShowSphere2Change={setShowSphere2}
+                  sphere2Opacity={sphere2Opacity}
+                  onSphere2OpacityChange={setSphere2Opacity}
+                  showCylinder={showCylinder}
+                  onShowCylinderChange={setShowCylinder}
+                  cylinderRadius={cylinderRadius}
+                  onCylinderRadiusChange={setCylinderRadius}
+                  cylinderHeight={cylinderHeight}
+                  onCylinderHeightChange={setCylinderHeight}
+                  cylinderAzimuth={cylinderAzimuth}
+                  onCylinderAzimuthChange={setCylinderAzimuth}
+                  cylinderInclination={cylinderInclination}
+                  onCylinderInclinationChange={setCylinderInclination}
+                  showCpsLines={showCpsLines}
+                  onShowCpsLinesChange={setShowCpsLines}
+                  showProjectivePoints={showProjectivePoints}
+                  onShowProjectivePointsChange={setShowProjectivePoints}
+                  showCpsLinesSet2={showCpsLinesSet2}
+                  onShowCpsLinesSet2Change={setShowCpsLinesSet2}
+                  showProjectivePointsSet2={showProjectivePointsSet2}
+                  onShowProjectivePointsSet2Change={setShowProjectivePointsSet2}
+                  showAntipodalSphere={showAntipodalSphere}
+                  onShowAntipodalSphereChange={setShowAntipodalSphere}
+                  showAntipodalPlane={showAntipodalPlane}
+                  onShowAntipodalPlaneChange={setShowAntipodalPlane}
+                  showAntipodalProjectivePointsSet1={showAntipodalProjectivePointsSet1}
+                  onShowAntipodalProjectivePointsSet1Change={setShowAntipodalProjectivePointsSet1}
+                  showAntipodalProjectivePointsSet2={showAntipodalProjectivePointsSet2}
+                  onShowAntipodalProjectivePointsSet2Change={setShowAntipodalProjectivePointsSet2}
+                  omega={omega}
+                  onOmegaChange={handleOmegaChange}
+                  showInspCpsLines={showInspCpsLines}
+                  onShowInspCpsLinesChange={setShowInspCpsLines}
+                  showInspPrimaryPoints={showInspPrimaryPoints}
+                  onShowInspPrimaryPointsChange={setShowInspPrimaryPoints}
+                  showInspAntipodalPoints={showInspAntipodalPoints}
+                  onShowInspAntipodalPointsChange={setShowInspAntipodalPoints}
+                  syntheticNodeInput={syntheticNodeInput}
+                  onSyntheticNodeInputChange={handleSyntheticNodeInputChange}
+                  syntheticNodeInput2={syntheticNodeInput2}
+                  onSyntheticNodeInput2Change={handleSyntheticNodeInput2Change}
+                  onCreateSyntheticNode={handleCreateSyntheticNode}
+                  onCreateSyntheticLine={handleCreateSyntheticLine}
+                  onClearSyntheticGeometry={handleClearSyntheticGeometry}
+                  syntheticNodeIntersections={syntheticNodeIntersections}
+                  syntheticLinePoints={syntheticLinePoints}
+                  syntheticLineIntersections={syntheticLineIntersections}
+                  syntheticPlaneEquation={syntheticPlaneEquation}
+                  syntheticLinePoint1Intersections={syntheticLinePoint1Intersections}
+                  syntheticLinePoint2Intersections={syntheticLinePoint2Intersections}
+                  primaryPlaneLineEquation={primaryPlaneLineEquation}
+                  antipodalPlaneLineEquation={antipodalPlaneLineEquation}
+                  showSyntheticPlane={showSyntheticPlane}
+                  onShowSyntheticPlaneChange={setShowSyntheticPlane}
+                  showSyntheticNodeDualPlane={showSyntheticNodeDualPlane}
+                  onShowSyntheticNodeDualPlaneChange={setShowSyntheticNodeDualPlane}
+                  syntheticNodeDualLineEquation={syntheticNodeDualLineEquation}
+                  syntheticP1DualLineEquation={syntheticP1DualLineEquation}
+                  syntheticP2DualLineEquation={syntheticP2DualLineEquation}
+                  syntheticP1PlaneCoords={syntheticP1PlaneCoords}
+                  syntheticP2PlaneCoords={syntheticP2PlaneCoords}
+                  showSyntheticNodeDualLine={showSyntheticNodeDualLine}
+                  onShowSyntheticNodeDualLineChange={setShowSyntheticNodeDualLine}
+                  syntheticNodeDualPlaneEquation={syntheticNodeDualPlaneEquation}
+                  onSaveCoordinates={handleSaveCoordinates}
+                  currentPdbName={currentPdbName}
+                  lattice={lattice}
+                  latticeFactor={currentLatticeFactor}
+                />
+              </aside>
+            </>
           )}
         </div>
       </main>

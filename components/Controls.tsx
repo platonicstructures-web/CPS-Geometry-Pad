@@ -127,13 +127,13 @@ const Controls: React.FC<ControlsProps> = ({
           </label>
           <button
             onClick={() => setIsGeneratorOpen(true)}
-            className="w-full text-center cursor-pointer bg-teal-600 text-white hover:bg-teal-500 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 block mb-2"
+            className="w-full text-center cursor-pointer bg-teal-600 text-white hover:bg-teal-500 px-3 py-1 text-sm rounded-md font-medium transition-colors duration-200 block mb-2"
           >
             Spherical Shells...
           </button>
           <label 
               htmlFor="pdb-upload" 
-              className="w-full text-center cursor-pointer bg-gray-700 text-gray-300 hover:bg-gray-600 px-3 py-1.5 rounded-md font-medium transition-colors duration-200 block mb-2"
+              className="w-full text-center cursor-pointer bg-gray-700 text-gray-300 hover:bg-gray-600 px-3 py-1 text-sm rounded-md font-medium transition-colors duration-200 block mb-2"
           >
             Load local .pdb file...
           </label>
