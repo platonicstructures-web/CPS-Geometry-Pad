@@ -1797,7 +1797,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     );
 
     const modelChanged = modelData !== prevModelData;
-    const styleOrBondChanged = style !== prevStyle || bondScale !== prevBondScale || bondMode !== prevBondMode;
+    const styleOrBondChanged = style !== prevStyle || bondScale !== prevBondScale;
     if (modelChanged || styleOrBondChanged) {
         glViewer.current.zoomTo();
     }

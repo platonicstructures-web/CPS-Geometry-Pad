@@ -185,10 +185,10 @@ const Controls: React.FC<ControlsProps> = ({
         </div>
 
         <div className="mt-2 mb-4 p-3 bg-gray-700/50 rounded-md border border-gray-600">
-            <label className="block text-md font-semibold mb-2 text-cyan-400">
-              Lattice:
-            </label>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-3">
+              <label className="block text-md font-semibold text-cyan-400">
+                Lattice:
+              </label>
               <div className="flex gap-4">
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
@@ -214,7 +214,7 @@ const Controls: React.FC<ControlsProps> = ({
                 </label>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-3">
+            <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="triangle-factor" className="block text-xs font-medium text-gray-400 mb-1">
                         Triangle Factor
@@ -254,7 +254,7 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
 
         <div>
-          <div className="bg-gray-700 p-3 rounded-md min-h-[120px] border border-gray-600 text-sm">
+          <div className="bg-gray-700 p-3 rounded-md h-[120px] overflow-y-auto border border-gray-600 text-sm">
             {metadata ? (
               <ul className="text-gray-300">
                 <li><strong className="text-gray-200">Title:</strong> <span className="text-gray-400">{metadata.title}</span></li>
