@@ -335,7 +335,17 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     setProjectivePointsDistance(null);
     setTriangleAnalysis(null);
 
-    glViewer.current.addModel(modelData, 'pdb', { doBonds: bondMode === 'calculated' });
+    if (bondMode === 'calculated') {
+      // Set the global distance factor only when calculating bonds by distance.
+      $3Dmol.bondDistanceFactor = bondScale;
+      glViewer.current.addModel(modelData, 'pdb', { doBonds: true });
+    } else { // 'conect'
+      // In 'conect' mode, do not calculate bonds by distance. 3Dmol will use CONECT records.
+      // It's also good practice to reset the global factor to its default to avoid side-effects.
+      $3Dmol.bondDistanceFactor = 1.15;
+      glViewer.current.addModel(modelData, 'pdb', { doBonds: false });
+    }
+    
     const modelSpec = { model: 0 };
     
     const atoms = glViewer.current.getModel(0)?.selectedAtoms({});
@@ -348,7 +358,6 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     const stickStyle = {
       colorscheme: colorSchemeName,
       radius: stickRadius,
-      bondScale: bondScale,
     };
     
     let trianglePlaneNormal: { x: number, y: number, z: number } | null = null;
