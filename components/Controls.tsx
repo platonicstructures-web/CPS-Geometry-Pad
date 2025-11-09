@@ -1,7 +1,8 @@
 import React from 'react';
 import { DisplayStyle, MoleculeMetadata, SelectionMode, Lattice, BondMode } from '../types';
-import PdbSelectionDialog from './PdbSelectionDialog';
 import SphericalShellsGenerator from './SphericalShellsGenerator';
+import Modal from './Modal';
+import AllStructuresList from './AllStructuresList';
 
 interface ControlsProps {
   onLocalFileLoad: (data: string, name: string) => void;
@@ -109,14 +110,31 @@ const Controls: React.FC<ControlsProps> = ({
     }
   };
 
+  const handleStructureSelect = (url: string) => {
+    setIsDialogOpen(false);
+    const transformUrl = (originalUrl: string): string => {
+        const idMatch = originalUrl.match(/(\d{3}-\d{5}-\d{3})/);
+        if (idMatch && idMatch[0]) {
+            const id = idMatch[0];
+            return `https://platonicstructures.com/PlatonicStructures/Catalog/${id}/${id}.pdb`;
+        }
+        console.warn('Could not transform URL, ID not found:', originalUrl);
+        return originalUrl;
+    };
+    const transformedUrl = transformUrl(url);
+    onPdbUrlLoad(transformedUrl);
+  };
+
 
   return (
     <React.Fragment>
-      <PdbSelectionDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onSelect={(url) => setPdbUrl(url)}
-      />
+      <Modal
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          title="Load Platonic Structure from Library"
+      >
+          <AllStructuresList onStructureSelect={(url, title) => handleStructureSelect(url)} />
+      </Modal>
       {isGeneratorOpen && (
         <SphericalShellsGenerator
           onClose={() => setIsGeneratorOpen(false)}

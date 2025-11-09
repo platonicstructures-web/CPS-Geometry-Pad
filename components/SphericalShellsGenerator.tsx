@@ -143,7 +143,8 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
             const center = frontier[head];
             head++;
             for (const transform of lattice) {
-                const newCoord: Coordinate = [center[0] + transform[0], center[1] + transform[1], center[2] + transform[2]];
+                // FIX: Explicitly cast Coordinate elements to number to resolve arithmetic operation error.
+                const newCoord: Coordinate = [(center[0] as number) + (transform[0] as number), (center[1] as number) + (transform[1] as number), (center[2] as number) + (transform[2] as number)];
                 const key = stringifyCoord(newCoord);
                 if (!allFoundCoords.has(key)) {
                     allFoundCoords.add(key);
@@ -289,7 +290,8 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
     const sortedShells = [...shells.entries()].sort((a, b) => a[0] - b[0]);
     const latticeSuffix = latticeType === 'triangle' ? 'TR' : 'SQ';
     for (const [shellNum, coords] of sortedShells) {
-        if (coords.length === 0) continue;
+        // FIX: Add a type guard to ensure coords is an array before iterating over it.
+        if (!Array.isArray(coords) || coords.length === 0) continue;
         let pdbContent = getPdbHeader(`SHELL ${shellNum} FOR ${latticeType.toUpperCase()} LATTICE`, useExpansion);
         const atomsForConect: { index: number, coord: Coordinate }[] = [];
         let atomIndex = 1;

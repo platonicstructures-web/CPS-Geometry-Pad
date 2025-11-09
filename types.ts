@@ -87,12 +87,6 @@ export interface InspectionData {
 }
 
 
-export interface PdbFile {
-  id: string;
-  name: string;
-  description: string;
-}
-
 export interface TranscriptionEntry {
   type: 'user' | 'model';
   text: string;
