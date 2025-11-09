@@ -60,6 +60,7 @@ interface PdbViewerProps {
   cylinderInclination: number;
   viewerBackground: string;
   showAxes: boolean;
+  axesLength: number;
   showCpsLines: boolean;
   showProjectivePoints: boolean;
   showCpsLinesSet2: boolean;
@@ -114,7 +115,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
   isolateNodesOnEllipticalSphere, hideNodesOutsideEllipticalSphere, setIsolatedNodeCount,
   setVisibleNodeCount, showSphere2, sphere2Opacity, showCylinder, cylinderRadius,
   cylinderHeight, cylinderAzimuth, cylinderInclination, viewerBackground, showAxes,
-  showCpsLines, showProjectivePoints, showCpsLinesSet2, showProjectivePointsSet2,
+  axesLength, showCpsLines, showProjectivePoints, showCpsLinesSet2, showProjectivePointsSet2,
   projectivePointRadius, showAntipodalSphere, showAntipodalPlane,
   showAntipodalProjectivePointsSet1, showAntipodalProjectivePointsSet2, omega,
   showInspCpsLines, showInspPrimaryPoints, showInspAntipodalPoints, showXYPlane,
@@ -275,9 +276,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     const omegaVec = vec(omega.x, omega.y, omega.z);
 
     if (showAxes) {
-      const axisDiameter = cylinderRadius * 2;
-      const axisLength = axisDiameter * 0.8;
-      const halfAxisLength = axisLength / 2;
+      const halfAxisLength = axesLength / 2;
 
       glViewer.current.addCylinder({ start: { x: omega.x - halfAxisLength, y: omega.y, z: omega.z }, end: { x: omega.x + halfAxisLength, y: omega.y, z: omega.z }, radius: lineRadius, color: 'red' });
       glViewer.current.addLabel('X', { position: { x: omega.x + halfAxisLength + 1, y: omega.y, z: omega.z }, fontColor: 'red', fontSize: 16, showBackground: false });
@@ -287,7 +286,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
       glViewer.current.addLabel('Z', { position: { x: omega.x, y: omega.y, z: omega.z + halfAxisLength + 1 }, fontColor: 'blue', fontSize: 16, showBackground: false });
     
       // Add cones for positive direction
-      const coneLength = axisLength * 0.04;
+      const coneLength = axesLength * 0.04;
       const coneRadius = lineRadius * 5;
 
       // X-axis cone
@@ -470,7 +469,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
       glViewer.current.addSphere({ center: omegaVec, radius: ellipticalRadius, color: 'white', opacity: originSphereOpacity });
     }
 
-    const planeRadius = cylinderRadius;
+    const planeRadius = axesLength;
     const planeHeight = cylinderHeight;
     const planeOpacity = 0.4;
     
@@ -1817,7 +1816,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     selectedProjectivePoint, inspectionData, normalLineLength, showOriginSphere, originSphereOpacity, ellipticalRadius,
     isolateNodesOnEllipticalSphere, hideNodesOutsideEllipticalSphere, showSphere2, 
     sphere2Opacity, showCylinder, cylinderRadius, cylinderHeight, cylinderAzimuth, cylinderInclination, 
-    showAxes, showCpsLines, showProjectivePoints, showCpsLinesSet2, showProjectivePointsSet2,
+    showAxes, axesLength, showCpsLines, showProjectivePoints, showCpsLinesSet2, showProjectivePointsSet2,
     projectivePointRadius, showAntipodalSphere, showAntipodalPlane, showAntipodalProjectivePointsSet1, 
     showAntipodalProjectivePointsSet2, omega, setIsLoading, setDistances, setNodeAngle, setProjectivePointsDistance, 
     setIntersectionPoints, setIntersectionDistances, setMetadata, setSelectedProjectivePoint, setInspectionData, setSelectedAtoms, setHoveredProjectivePoint,

@@ -34,6 +34,8 @@ interface ControlsProps {
   onTriangleLatticeFactorChange: (factor: number) => void;
   squareLatticeFactor: number;
   onSquareLatticeFactorChange: (factor: number) => void;
+  axesLength: number;
+  onAxesLengthChange: (length: number) => void;
 }
 
 const Controls: React.FC<ControlsProps> = ({
@@ -67,14 +69,14 @@ const Controls: React.FC<ControlsProps> = ({
   onTriangleLatticeFactorChange,
   squareLatticeFactor,
   onSquareLatticeFactorChange,
+  axesLength,
+  onAxesLengthChange,
 }) => {
   const [pdbUrl, setPdbUrl] = React.useState('');
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = React.useState(false);
 
   const displayStyles: { style: DisplayStyle; label: string }[] = [
-    { style: 'line', label: 'Lines' },
-    { style: 'stick', label: 'Sticks' },
     { style: 'sphere', label: 'Balls' },
     { style: 'ball and stick', label: 'Balls+Sticks' },
     { style: 'hidden', label: 'Hide' },
@@ -272,24 +274,22 @@ const Controls: React.FC<ControlsProps> = ({
 
         <div className="my-6">
           <div className="space-y-4">
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold text-cyan-400 whitespace-nowrap">Display Style:</h3>
-              <div className="flex flex-wrap gap-2">
-                {displayStyles.map(({ style, label }) => (
-                  <button
-                    key={style}
-                    onClick={() => onStyleChange(style)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
-                      ${
-                        selectedStyle === style
-                          ? 'bg-cyan-500 text-white shadow-md'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              {displayStyles.map(({ style, label }) => (
+                <button
+                  key={style}
+                  onClick={() => onStyleChange(style)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
+                    ${
+                      selectedStyle === style
+                        ? 'bg-cyan-500 text-white shadow-md'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
             <div className="pt-2">
                 <label className="block text-sm font-medium text-gray-300 mb-2">Bond Generation:</label>
@@ -319,24 +319,38 @@ const Controls: React.FC<ControlsProps> = ({
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Use distance ('Calculated') or only PDB file `CONECT` records.</p>
             </div>
-            <div className="pt-2">
-              <label htmlFor="bond-scale-slider" className={`block text-sm font-medium ${bondMode === 'calculated' ? 'text-gray-300' : 'text-gray-500'}`}>
-                Stick Length Tolerance: <span className="font-bold text-cyan-400">{bondScale.toFixed(2)}</span>
-              </label>
-              <input
-                id="bond-scale-slider"
-                type="range"
-                min="0.3"
-                max="5.0"
-                step="0.05"
-                value={bondScale}
-                onChange={(e) => onBondScaleChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={bondMode !== 'calculated'}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                (Only for 'Calculated' bonds). Increase to connect more distant nodes.
-              </p>
+            <div className="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label htmlFor="bond-scale-slider" className={`block text-sm font-medium ${bondMode === 'calculated' ? 'text-gray-300' : 'text-gray-500'}`}>
+                    Length Tolerance: <span className="font-bold text-cyan-400">{bondScale.toFixed(2)}</span>
+                  </label>
+                  <input
+                    id="bond-scale-slider"
+                    type="range"
+                    min="0.3"
+                    max="5.0"
+                    step="0.05"
+                    value={bondScale}
+                    onChange={(e) => onBondScaleChange(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={bondMode !== 'calculated'}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="axes-length-slider" className="block text-sm font-medium text-gray-300">
+                    Axes Length: <span className="font-bold text-cyan-400">{axesLength.toFixed(0)}</span>
+                  </label>
+                  <input
+                    id="axes-length-slider"
+                    type="range"
+                    min="5"
+                    max="50"
+                    step="1"
+                    value={axesLength}
+                    onChange={(e) => onAxesLengthChange(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                  />
+                </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>

@@ -91,6 +91,7 @@ const App: React.FC = () => {
   const [cylinderInclination, setCylinderInclination] = useState(0);
   const [viewerBackground, setViewerBackground] = useState('dark');
   const [showAxes, setShowAxes] = useState(true);
+  const [axesLength, setAxesLength] = useState(20);
   const [showCpsLines, setShowCpsLines] = useState(false);
   const [showProjectivePoints, setShowProjectivePoints] = useState(false);
   const [showCpsLinesSet2, setShowCpsLinesSet2] = useState(false);
@@ -652,6 +653,8 @@ const App: React.FC = () => {
                     onTriangleLatticeFactorChange={setTriangleLatticeFactor}
                     squareLatticeFactor={squareLatticeFactor}
                     onSquareLatticeFactorChange={setSquareLatticeFactor}
+                    axesLength={axesLength}
+                    onAxesLengthChange={setAxesLength}
                   />
                 ) : (
                   <ControlsPanel2
@@ -776,6 +779,7 @@ const App: React.FC = () => {
                 cylinderInclination={cylinderInclination}
                 viewerBackground={viewerBackground}
                 showAxes={showAxes}
+                axesLength={axesLength}
                 showCpsLines={showCpsLines}
                 showProjectivePoints={showProjectivePoints}
                 showCpsLinesSet2={showCpsLinesSet2}
