@@ -238,6 +238,16 @@ const ControlsPanel2: React.FC<ControlsPanel2Props> = ({
     { mode: 'inspection', label: 'Inspection' },
   ];
 
+  const TriangleAnalysisDisplay: React.FC<{title: string; analysis: TrianglePlaneAnalysis; color: string; latticeFactor: number}> = ({title, analysis, color, latticeFactor}) => (
+    <div>
+      <h4 className={`font-bold text-${color}-300`}>{title}</h4>
+      <div className="pl-2">
+          <p>Sides: <span className="text-white">{(analysis.sideLengths[0]/latticeFactor).toFixed(3)}, {(analysis.sideLengths[1]/latticeFactor).toFixed(3)}, {(analysis.sideLengths[2]/latticeFactor).toFixed(3)}</span></p>
+          <p>Angles: <span className="text-white">{analysis.angles[0].toFixed(2)}°, {analysis.angles[1].toFixed(2)}°, {analysis.angles[2].toFixed(2)}°</span></p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">
       <div>
@@ -299,7 +309,214 @@ const ControlsPanel2: React.FC<ControlsPanel2Props> = ({
       <div className="flex-grow flex flex-col min-h-0">
         <h3 className="text-lg font-semibold mb-2 text-cyan-400">Selection Info</h3>
         <div className="flex-grow bg-gray-900/50 p-3 rounded-md border border-gray-600 overflow-y-auto text-sm font-mono text-gray-300">
-          {/* Render content based on selection mode */}
+          {selectedAtoms.length === 0 && !selectedProjectivePoint && !inspectionData && (
+            <div className="text-center text-gray-500 h-full flex items-center justify-center">
+                <p>Select a node, distance, or triangle to see details.</p>
+            </div>
+          )}
+          
+          {selectionMode === 'node' && intersectionPoints && intersectionPoints.length > 0 && selectedAtoms.length > 0 && (
+            <div>
+                <div className="flex border-b border-gray-600 mb-2">
+                    {selectedAtoms.map((atom, index) => (
+                        <button
+                            key={atom.serial}
+                            onClick={() => setActiveIntersectionTab(index)}
+                            className={`px-3 py-1 text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-cyan-500 rounded-t-md flex-1 text-center
+                                ${activeIntersectionTab === index ? 'bg-gray-700/80 text-cyan-400' : 'bg-gray-900/50 text-gray-400 hover:bg-gray-700/50'}`}
+                        >
+                            Node #{atom.serial}
+                        </button>
+                    ))}
+                </div>
+                {intersectionPoints[activeIntersectionTab] && (
+                    <IntersectionDetailsDisplay
+                        points={intersectionPoints[activeIntersectionTab]}
+                        title={`Node #${selectedAtoms[activeIntersectionTab]?.serial}`}
+                        showNodeInfo={true}
+                        latticeFactor={latticeFactor}
+                    />
+                )}
+            </div>
+          )}
+
+          {selectionMode === 'distance' && distances && (
+              <div className="space-y-2">
+                  <p>Nodes: <span className="text-white">#{selectedAtoms[0]?.serial} & #{selectedAtoms[1]?.serial}</span></p>
+                  <p>3D Distance: <span className="text-white">{(distances[0] / latticeFactor).toFixed(3)}</span></p>
+                  {nodeAngle !== null && <p>Angle at Origin: <span className="text-white">{nodeAngle.toFixed(2)}°</span></p>}
+                  {projectivePointsDistance && (
+                      <>
+                          {projectivePointsDistance.primary !== undefined && <p>Primary Plane Dist: <span className="text-purple-300">{(projectivePointsDistance.primary / latticeFactor).toFixed(3)}</span></p>}
+                          {projectivePointsDistance.antipodal !== undefined && <p>Antipodal Plane Dist: <span className="text-teal-300">{(projectivePointsDistance.antipodal / latticeFactor).toFixed(3)}</span></p>}
+                      </>
+                  )}
+                  {intersectionDistances && (
+                      <div className="mt-2 pt-2 border-t border-gray-700">
+                          {intersectionDistances.primaryPlane !== undefined && <p>Primary Plane Dist: <span className="text-purple-300">{(intersectionDistances.primaryPlane / latticeFactor).toFixed(3)}</span></p>}
+                          {intersectionDistances.primaryPlaneAngle3D !== undefined && <p>Primary 3D Angle: <span className="text-purple-300">{intersectionDistances.primaryPlaneAngle3D.toFixed(2)}°</span></p>}
+                          {intersectionDistances.primaryPlaneAngle2D !== undefined && <p>Primary 2D Angle: <span className="text-purple-300">{intersectionDistances.primaryPlaneAngle2D.toFixed(2)}°</span></p>}
+                          {intersectionDistances.antipodalPlaneAngle3D !== undefined && <p className="mt-2">Antipodal 3D Angle: <span className="text-teal-300">{intersectionDistances.antipodalPlaneAngle3D.toFixed(2)}°</span></p>}
+                          {intersectionDistances.antipodalPlaneAngle2D !== undefined && <p>Antipodal 2D Angle: <span className="text-teal-300">{intersectionDistances.antipodalPlaneAngle2D.toFixed(2)}°</span></p>}
+                      </div>
+                  )}
+              </div>
+          )}
+
+          {selectionMode === 'triangle' && selectedAtoms.length === 3 && (
+              <div className="space-y-3">
+                  <div>
+                      <h4 className="font-bold text-cyan-400">Selected Nodes:</h4>
+                      <p className="pl-2">#{selectedAtoms[0].serial}, #{selectedAtoms[1].serial}, #{selectedAtoms[2].serial}</p>
+                  </div>
+                  {distances && (
+                      <div>
+                          <h4 className="font-bold text-cyan-400">Side Lengths (3D):</h4>
+                          <p className="pl-2">d(1,2): <span className="text-white">{(distances[0]/latticeFactor).toFixed(3)}</span></p>
+                          <p className="pl-2">d(2,3): <span className="text-white">{(distances[1]/latticeFactor).toFixed(3)}</span></p>
+                          <p className="pl-2">d(1,3): <span className="text-white">{(distances[2]/latticeFactor).toFixed(3)}</span></p>
+                      </div>
+                  )}
+                  {trianglePlaneEquation && (
+                      <div>
+                          <h4 className="font-bold text-cyan-400">3D Plane Equation:</h4>
+                          <p className="pl-2 text-amber-300">{trianglePlaneEquation}</p>
+                          <div className="pl-2 grid grid-cols-2 gap-x-2 text-xs">
+                              <p>Azimuth: <span className="text-white">{trianglePlaneAzimuth?.toFixed(2)}°</span></p>
+                              <p>Inclination: <span className="text-white">{trianglePlaneInclination?.toFixed(2)}°</span></p>
+                              <p>Dist to Origin: <span className="text-white">{(trianglePlaneDistanceToOrigin !== null ? trianglePlaneDistanceToOrigin/latticeFactor : 0).toFixed(3)}</span></p>
+                          </div>
+                      </div>
+                  )}
+                  {closestNodeOnNormal && (
+                      <div>
+                          <h4 className="font-bold text-yellow-400">Closest Node on Normal:</h4>
+                          <p className="pl-2 text-yellow-300">Node #{closestNodeOnNormal.serial} (Dist: {(len(vec(closestNodeOnNormal)) / latticeFactor).toFixed(3)})</p>
+                      </div>
+                  )}
+                  {triangleAnalysis && (
+                      <div className="mt-2 pt-2 border-t border-gray-700 space-y-3">
+                          {triangleAnalysis.primary && <TriangleAnalysisDisplay title="Primary Plane Triangle" analysis={triangleAnalysis.primary} color="purple" latticeFactor={latticeFactor} />}
+                          {triangleAnalysis.antipodal && <TriangleAnalysisDisplay title="Antipodal Plane Triangle" analysis={triangleAnalysis.antipodal} color="teal" latticeFactor={latticeFactor} />}
+                      </div>
+                  )}
+                  <div className="mt-2 pt-2 border-t border-gray-700 space-y-2">
+                      <h4 className="font-bold text-cyan-400">Plane Visualization:</h4>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" checked={showTrianglePlane} onChange={(e) => onShowTrianglePlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                        <span className="text-gray-300 text-sm">Show Triangle Plane</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" checked={hideNodesNotOnTrianglePlane} onChange={(e) => onHideNodesNotOnTrianglePlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                        <span className="text-gray-300 text-sm">Hide nodes not on plane</span>
+                      </label>
+                      <div className="pt-2">
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                              <input type="checkbox" checked={showParallelPlane} onChange={(e) => onShowParallelPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                              <span className="text-gray-300 text-sm">Show Parallel Plane</span>
+                          </label>
+                          <div className="mt-1">
+                            <label htmlFor="parallel-plane-dist-slider" className="block text-xs font-medium text-gray-400">
+                              Distance: <span className="font-bold text-cyan-400">{(parallelPlaneDistance / latticeFactor).toFixed(2)}</span>
+                            </label>
+                            <input
+                              id="parallel-plane-dist-slider" type="range" min={-latticeFactor*5} max={latticeFactor*5} step="0.1" value={parallelPlaneDistance}
+                              onChange={(e) => onParallelPlaneDistanceChange(parseFloat(e.target.value))}
+                              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50" disabled={!showParallelPlane}
+                            />
+                          </div>
+                           <label className="flex items-center space-x-2 cursor-pointer mt-2">
+                            <input type="checkbox" checked={isolateNodesOnParallelPlane} onChange={(e) => onIsolateNodesOnParallelPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                            <span className="text-gray-300 text-sm">Isolate nodes on parallel plane</span>
+                          </label>
+                      </div>
+                  </div>
+              </div>
+          )}
+
+          {selectionMode === 'inspection' && (
+              <div>
+                  <label className="flex items-center space-x-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={isProjectivePointModeActive}
+                        onChange={(e) => onSetProjectivePointModeActive(e.target.checked)}
+                        className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                      />
+                      <span className="text-gray-300">Click on projected points</span>
+                  </label>
+                  {inspectionData ? (
+                    <div className="mt-3 pt-3 border-t border-gray-700 space-y-2">
+                      <div className="flex border-b border-gray-600 mb-2">
+                          {(['reflection', 'inversion', 'multiplication'] as const).map(tab => (
+                              <button
+                                  key={tab}
+                                  onClick={() => onActiveInspectionTabChange(tab)}
+                                  disabled={tab !== 'reflection' && tab !== 'inversion'} // Multiplication not implemented
+                                  className={`px-3 py-1 text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-cyan-500 rounded-t-md flex-1 text-center disabled:opacity-50
+                                      ${activeInspectionTab === tab ? 'bg-gray-700/80 text-cyan-400' : 'bg-gray-900/50 text-gray-400 hover:bg-gray-700/50'}`}
+                              >
+                                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                              </button>
+                          ))}
+                      </div>
+
+                      {activeInspectionTab === 'reflection' && (
+                          <>
+                              <p>Selected Point on <span className="text-white">{inspectionData.selectedProjectedPoint.plane}</span> plane</p>
+                              <p>Associated Node: <span className="text-white">#{inspectionData.associated3DNode.serial}</span></p>
+                              {lattice === 'square' ? (
+                                  <>
+                                      <p>Inverted Node: <span className="text-white">{inspectionData.inverted3DNode ? `#${inspectionData.inverted3DNode.serial}` : 'Not found'}</span></p>
+                                      <p>Inverted Projected Point: <span className="text-white">{inspectionData.invertedProjectedPoint ? 'Found' : 'Not found'}</span></p>
+                                      <p>Test Result: <span className={inspectionData.inversionTestResult === "Passed" ? "text-green-400" : "text-red-400"}>{inspectionData.inversionTestResult}</span></p>
+                                  </>
+                              ) : (
+                                  <p className="text-gray-500 italic">Inversion analysis only for Square lattice.</p>
+                              )}
+                          </>
+                      )}
+
+                      {activeInspectionTab === 'inversion' && (
+                          <>
+                              <div className="flex items-center gap-4 text-sm mb-2">
+                                  <label className="flex items-center gap-2 cursor-pointer">
+                                      <input type="radio" name="inversion-type" value="geometric" checked={inversionType === 'geometric'} onChange={() => onInversionTypeChange('geometric')} className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                                      <span>Geometric</span>
+                                  </label>
+                                  <label className="flex items-center gap-2 cursor-pointer">
+                                      <input type="radio" name="inversion-type" value="complex" checked={inversionType === 'complex'} onChange={() => onInversionTypeChange('complex')} className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                                      <span>Complex</span>
+                                  </label>
+                              </div>
+                              <label className="flex items-center space-x-2 cursor-pointer text-sm">
+                                  <input type="checkbox" checked={showCalculatedInversionPoint} onChange={(e) => onShowCalculatedInversionPointChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
+                                  <span className="text-gray-300">Show calculated point</span>
+                              </label>
+                              {/* FIX: Corrected typo in property name from 'calculatedInversionPoint' to 'calculatedInvertedPoint'. */}
+                              {inspectionData.calculatedInvertedPoint && (
+                                  <div className="mt-2">
+                                     <h4 className="font-bold text-orange-400">Calculated Geometric Inversion:</h4>
+                                     {/* FIX: Corrected typo in property name from 'calculatedInversionPoint' to 'calculatedInvertedPoint'. */}
+                                     <PlaneIntersectionDisplay data={inspectionData.calculatedInvertedPoint} label="" labelColor="text-orange-300" latticeFactor={latticeFactor}/>
+                                  </div>
+                              )}
+                              {inspectionData.calculatedComplexInvertedPoint && (
+                                  <div className="mt-2">
+                                     <h4 className="font-bold text-orange-400">Calculated Complex Inversion:</h4>
+                                     <PlaneIntersectionDisplay data={inspectionData.calculatedComplexInvertedPoint} label="" labelColor="text-orange-300" latticeFactor={latticeFactor}/>
+                                  </div>
+                              )}
+                          </>
+                      )}
+                      
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic mt-2">Select a projected point to inspect.</p>
+                  )}
+              </div>
+          )}
+
         </div>
       </div>
     </div>

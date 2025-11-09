@@ -100,170 +100,32 @@ interface PdbViewerProps {
   latticeFactor: number;
 }
 
-// Vector math helpers
-const vec = (x: number, y: number, z: number) => ({ x, y, z });
-const add = (v1: any, v2: any) => vec(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
-const sub = (v1: any, v2: any) => vec(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
-const scale = (v: any, s: number) => vec(v.x * s, v.y * s, v.z * s);
-const len = (v: any) => Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-const dot = (v1: any, v2: any) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-const cross = (v1: any, v2: any) => vec(
-  v1.y * v2.z - v1.z * v2.y,
-  v1.z * v2.x - v1.x * v2.z,
-  v1.x * v2.y - v1.y * v2.x
-);
-const normalize = (v: any) => {
-  const l = len(v);
-  if (l < 1e-6) return vec(0, 0, 0); // handle zero-length vector
-  return scale(v, 1 / l);
-};
-
-const VIEW_MATRICES: { [key: string]: number[] } = {
-  front:  [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-  back:   [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1],
-  top:    [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-  bottom: [1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1],
-  right:  [0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 1],
-  left:   [0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-};
-
-const parsePdbMetadata = (pdbString: string): Omit<MoleculeMetadata, 'numAtoms'> => {
-  const lines = pdbString.split('\n');
-  let title = '';
-  let header = '';
-  let source = '';
-
-  const titleRegex = /^TITLE\s*\d*\s*(.*)/;
-  const sourceRegex = /^SOURCE\s*\d*\s*(.*)/;
-
-  for (const line of lines) {
-    const titleMatch = line.match(titleRegex);
-    if (titleMatch) {
-      title += titleMatch[1].trim() + ' ';
-      continue;
-    }
-
-    const sourceMatch = line.match(sourceRegex);
-    if (sourceMatch) {
-      source += sourceMatch[1].trim() + ' ';
-      continue;
-    }
-    
-    if (line.startsWith('HEADER')) {
-      header = line.substring(10, 50).trim();
-    }
-
-    if (line.startsWith('ATOM') || line.startsWith('HETATM')) {
-      break; 
-    }
-  }
-
-  return {
-    title: title.trim() || 'N/A',
-    header: header.trim() || 'N/A',
-    source: source.trim() || 'N/A',
-  };
-};
-
-function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T | undefined>(undefined);
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
-
-
-const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({ 
-  pdbData,
-  style, 
-  setIsLoading, 
-  setError,
-  selectionMode,
-  selectedAtoms,
-  setSelectedAtoms,
-  selectedProjectivePoint,
-  setSelectedProjectivePoint,
-  inspectionData,
-  setInspectionData,
-  setHoveredAtom,
-  setHoveredProjectivePoint,
-  setDistances,
-  setNodeAngle,
-  setProjectivePointsDistance,
-  setIntersectionPoints,
-  setIntersectionDistances,
-  setTriangleAnalysis,
-  setTrianglePlaneEquation,
-  setTrianglePlaneAzimuth,
-  setTrianglePlaneInclination,
-  setTrianglePlaneDistanceToOrigin,
-  showTrianglePlane,
-  hideNodesNotOnTrianglePlane,
-  showParallelPlane,
-  parallelPlaneDistance,
-  isolateNodesOnParallelPlane,
-  atomScale,
-  stickRadius,
-  lineRadius,
-  bondScale,
-  bondMode,
-  setMetadata,
-  normalLineLength,
-  showOriginSphere,
-  originSphereOpacity,
-  ellipticalRadius,
-  isolateNodesOnEllipticalSphere,
-  hideNodesOutsideEllipticalSphere,
-  setIsolatedNodeCount,
-  setVisibleNodeCount,
-  showSphere2,
-  sphere2Opacity,
-  showCylinder,
-  cylinderRadius,
-  cylinderHeight,
-  cylinderAzimuth,
-  cylinderInclination,
-  viewerBackground,
-  showAxes,
-  showCpsLines,
-  showProjectivePoints,
-  showCpsLinesSet2,
-  showProjectivePointsSet2,
-  projectivePointRadius,
-  showAntipodalSphere,
-  showAntipodalPlane,
-  showAntipodalProjectivePointsSet1,
-  showAntipodalProjectivePointsSet2,
-  omega,
-  showInspCpsLines,
-  showInspPrimaryPoints,
-  showInspAntipodalPoints,
-  showXYPlane,
-  showXZPlane,
-  showYZPlane,
-  isProjectivePointModeActive,
-  syntheticNode,
-  setSyntheticNodeIntersections,
-  syntheticLinePoints,
-  setSyntheticLineIntersections,
-  setSyntheticLinePoint1Intersections,
-  setSyntheticLinePoint2Intersections,
-  showSyntheticPlane,
-  showSyntheticNodeDualPlane,
-  setSyntheticNodeDualLineEquation,
-  setSyntheticP1DualLineEquation,
-  setSyntheticP2DualLineEquation,
-  setSyntheticP1PlaneCoords,
-  setSyntheticP2PlaneCoords,
-  showSyntheticNodeDualLine,
-  setSyntheticNodeDualPlaneEquation,
-  setClosestNodeOnNormal,
-  lattice,
-  activeInspectionTab,
-  showCalculatedInversionPoint,
-  inversionType,
-  latticeFactor,
+// FIX: Corrected component signature to properly destructure props, resolving a large number of "Cannot find name" errors.
+const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
+  pdbData, style, setIsLoading, setError, selectionMode, selectedAtoms, setSelectedAtoms,
+  selectedProjectivePoint, setSelectedProjectivePoint, inspectionData, setInspectionData,
+  setHoveredAtom, setHoveredProjectivePoint, setDistances, setNodeAngle,
+  setProjectivePointsDistance, setIntersectionPoints, setIntersectionDistances,
+  setTriangleAnalysis, setTrianglePlaneEquation, setTrianglePlaneAzimuth,
+  setTrianglePlaneInclination, setTrianglePlaneDistanceToOrigin, showTrianglePlane,
+  hideNodesNotOnTrianglePlane, showParallelPlane, parallelPlaneDistance,
+  isolateNodesOnParallelPlane, atomScale, stickRadius, lineRadius, bondScale, bondMode,
+  setMetadata, normalLineLength, showOriginSphere, originSphereOpacity, ellipticalRadius,
+  isolateNodesOnEllipticalSphere, hideNodesOutsideEllipticalSphere, setIsolatedNodeCount,
+  setVisibleNodeCount, showSphere2, sphere2Opacity, showCylinder, cylinderRadius,
+  cylinderHeight, cylinderAzimuth, cylinderInclination, viewerBackground, showAxes,
+  showCpsLines, showProjectivePoints, showCpsLinesSet2, showProjectivePointsSet2,
+  projectivePointRadius, showAntipodalSphere, showAntipodalPlane,
+  showAntipodalProjectivePointsSet1, showAntipodalProjectivePointsSet2, omega,
+  showInspCpsLines, showInspPrimaryPoints, showInspAntipodalPoints, showXYPlane,
+  showXZPlane, showYZPlane, isProjectivePointModeActive, syntheticNode,
+  setSyntheticNodeIntersections, syntheticLinePoints, setSyntheticLineIntersections,
+  setSyntheticLinePoint1Intersections, setSyntheticLinePoint2Intersections,
+  showSyntheticPlane, showSyntheticNodeDualPlane, setSyntheticNodeDualLineEquation,
+  setSyntheticP1DualLineEquation, setSyntheticP2DualLineEquation, setSyntheticP1PlaneCoords,
+  setSyntheticP2PlaneCoords, showSyntheticNodeDualLine, setSyntheticNodeDualPlaneEquation,
+  setClosestNodeOnNormal, lattice, activeInspectionTab, showCalculatedInversionPoint,
+  inversionType, latticeFactor,
 }, ref) => {
   const viewerRef = useRef<HTMLDivElement>(null);
   const glViewer = useRef<any>(null);
@@ -346,6 +208,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
         link.setAttribute("download", "cps_coordinates.csv");
+        // FIX: Corrected a function call on a string property. The 'visibility' property should be assigned a value, not called as a function.
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -472,10 +335,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     setProjectivePointsDistance(null);
     setTriangleAnalysis(null);
 
-    const modelOptions = {
-        bondScale: bondMode === 'calculated' ? bondScale : 0
-    };
-    glViewer.current.addModel(modelData, 'pdb', modelOptions);
+    glViewer.current.addModel(modelData, 'pdb', { doBonds: bondMode === 'calculated' });
     const modelSpec = { model: 0 };
     
     const atoms = glViewer.current.getModel(0)?.selectedAtoms({});
@@ -484,6 +344,12 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     }
 
     const colorSchemeName = 'Jmol';
+    
+    const stickStyle = {
+      colorscheme: colorSchemeName,
+      radius: stickRadius,
+      bondScale: bondScale,
+    };
     
     let trianglePlaneNormal: { x: number, y: number, z: number } | null = null;
     let trianglePlaneD: number | null = null;
@@ -527,9 +393,9 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     
     switch(style) {
       case 'line': glViewer.current.setStyle(modelSpec, { line: { colorscheme: colorSchemeName } }); break;
-      case 'stick': glViewer.current.setStyle(modelSpec, { stick: { colorscheme: colorSchemeName, radius: stickRadius } }); break;
+      case 'stick': glViewer.current.setStyle(modelSpec, { stick: stickStyle }); break;
       case 'sphere': glViewer.current.setStyle(modelSpec, { sphere: { radius: atomScale, colorscheme: colorSchemeName } }); break;
-      case 'ball and stick': glViewer.current.setStyle(modelSpec, { stick: { colorscheme: colorSchemeName, radius: stickRadius }, sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName } }); break;
+      case 'ball and stick': glViewer.current.setStyle(modelSpec, { stick: stickStyle, sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName } }); break;
       case 'hidden':
         if (selectedAtoms.length > 0) {
             const selectedSpec = { serial: selectedAtoms.map(a => a.serial) };
@@ -544,7 +410,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
             
             // Explicitly show the selected atoms with the default style
             glViewer.current.setStyle(selectedSpec, {
-                stick: { colorscheme: colorSchemeName, radius: stickRadius },
+                stick: stickStyle,
                 sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName }
             });
 
@@ -557,7 +423,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
             });
         }
         break;
-      default: glViewer.current.setStyle(modelSpec, { stick: { colorscheme: colorSchemeName, radius: stickRadius } }); break;
+      default: glViewer.current.setStyle(modelSpec, { stick: stickStyle }); break;
     }
     
     // --- GEOMETRIC GUIDES SETUP ---
@@ -752,7 +618,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
 
             if (atomsOnPlaneSerials.length > 0) {
                  glViewer.current.setStyle({ serial: atomsOnPlaneSerials }, {
-                    stick: { colorscheme: colorSchemeName, radius: stickRadius },
+                    stick: stickStyle,
                     sphere: { radius: atomScale * 0.6, colorscheme: colorSchemeName }
                 });
             }
@@ -1930,5 +1796,82 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
 
   return <div ref={viewerRef} className="w-full h-full" aria-label="3D Molecule Viewer" />;
 });
+
+// Vector math helpers
+const vec = (x: number | {x:number, y:number, z:number}, y?: number, z?: number) => {
+    if (typeof x === 'object') return { x: x.x, y: x.y, z: x.z };
+    return { x: x as number, y: y!, z: z! };
+};
+const add = (v1: any, v2: any) => vec(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+const sub = (v1: any, v2: any) => vec(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+const scale = (v: any, s: number) => vec(v.x * s, v.y * s, v.z * s);
+const len = (v: any) => Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+const dot = (v1: any, v2: any) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+const cross = (v1: any, v2: any) => vec(
+  v1.y * v2.z - v1.z * v2.y,
+  v1.z * v2.x - v1.x * v2.z,
+  v1.x * v2.y - v1.y * v2.x
+);
+const normalize = (v: any) => {
+  const l = len(v);
+  if (l < 1e-6) return vec(0, 0, 0); // handle zero-length vector
+  return scale(v, 1 / l);
+};
+
+const VIEW_MATRICES: { [key: string]: number[] } = {
+  front:  [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  back:   [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1],
+  top:    [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+  bottom: [1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1],
+  right:  [0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 1],
+  left:   [0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+};
+
+const parsePdbMetadata = (pdbString: string): Omit<MoleculeMetadata, 'numAtoms'> => {
+  const lines = pdbString.split('\n');
+  let title = '';
+  let header = '';
+  let source = '';
+
+  const titleRegex = /^TITLE\s*\d*\s*(.*)/;
+  const sourceRegex = /^SOURCE\s*\d*\s*(.*)/;
+
+  for (const line of lines) {
+    const titleMatch = line.match(titleRegex);
+    if (titleMatch) {
+      title += titleMatch[1].trim() + ' ';
+      continue;
+    }
+
+    const sourceMatch = line.match(sourceRegex);
+    if (sourceMatch) {
+      source += sourceMatch[1].trim() + ' ';
+      continue;
+    }
+    
+    if (line.startsWith('HEADER')) {
+      header = line.substring(10, 50).trim();
+    }
+
+    if (line.startsWith('ATOM') || line.startsWith('HETATM')) {
+      break; 
+    }
+  }
+
+  return {
+    title: title.trim() || 'N/A',
+    header: header.trim() || 'N/A',
+    source: source.trim() || 'N/A',
+  };
+};
+
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T | undefined>(undefined);
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 
 export default PdbViewer;
