@@ -3,7 +3,7 @@ import Header from './components/Header';
 import Controls from './components/Controls';
 import RightControls from './components/RightControls';
 import PdbViewer, { PdbViewerHandles } from './components/PdbViewer';
-import { DisplayStyle, AtomSpec, SelectionMode, MoleculeMetadata, IntersectionPoints, IntersectionDistances, ProjectivePointInfo, TriangleAnalysis, HoveredProjectivePointInfo, InspectionData, Lattice } from './types';
+import { DisplayStyle, AtomSpec, SelectionMode, MoleculeMetadata, IntersectionPoints, IntersectionDistances, ProjectivePointInfo, TriangleAnalysis, HoveredProjectivePointInfo, InspectionData, Lattice, BondMode } from './types';
 import Footer from './components/Footer';
 import TopBar from './components/TopBar';
 import LiveTranscription from './components/LiveTranscription';
@@ -39,6 +39,7 @@ const App: React.FC = () => {
   const [atomScale, setAtomScale] = useState(0.2);
   const [stickRadius, setStickRadius] = useState(0.05);
   const [bondScale, setBondScale] = useState(1.2);
+  const [bondMode, setBondMode] = useState<BondMode>('calculated');
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('none');
   const [selectedAtoms, setSelectedAtoms] = useState<AtomSpec[]>([]);
   const [selectedProjectivePoint, setSelectedProjectivePoint] = useState<ProjectivePointInfo | null>(null);
@@ -632,6 +633,8 @@ const App: React.FC = () => {
                     onStickRadiusChange={setStickRadius}
                     bondScale={bondScale}
                     onBondScaleChange={setBondScale}
+                    bondMode={bondMode}
+                    onBondModeChange={setBondMode}
                     metadata={metadata}
                     projectivePointRadius={projectivePointRadius}
                     onProjectivePointRadiusChange={setProjectivePointRadius}
@@ -754,6 +757,7 @@ const App: React.FC = () => {
                 stickRadius={stickRadius}
                 lineRadius={lineRadius}
                 bondScale={bondScale}
+                bondMode={bondMode}
                 setMetadata={setMetadata}
                 normalLineLength={normalLineLength}
                 showOriginSphere={showOriginSphere}

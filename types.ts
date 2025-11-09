@@ -1,6 +1,8 @@
 // FIX: Removed self-import of PdbFile which was causing a conflict with the local declaration.
 export type DisplayStyle = 'line' | 'stick' | 'sphere' | 'ball and stick' | 'hidden';
 
+export type BondMode = 'calculated' | 'conect';
+
 export interface AtomSpec {
   x: number;
   y: number;

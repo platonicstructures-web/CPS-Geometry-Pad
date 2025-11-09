@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
-import { DisplayStyle, AtomSpec, SelectionMode, MoleculeMetadata, IntersectionPoints, IntersectionDistances, ProjectivePointInfo, PlaneIntersectionPoint, TriangleAnalysis, TrianglePlaneAnalysis, HoveredProjectivePointInfo, InspectionData, Lattice } from '../types';
+import { DisplayStyle, AtomSpec, SelectionMode, MoleculeMetadata, IntersectionPoints, IntersectionDistances, ProjectivePointInfo, PlaneIntersectionPoint, TriangleAnalysis, TrianglePlaneAnalysis, HoveredProjectivePointInfo, InspectionData, Lattice, BondMode } from '../types';
 
 declare const $3Dmol: any;
 
@@ -41,6 +41,7 @@ interface PdbViewerProps {
   stickRadius: number;
   lineRadius: number;
   bondScale: number;
+  bondMode: BondMode;
   setMetadata: React.Dispatch<React.SetStateAction<MoleculeMetadata | null>>;
   normalLineLength: number;
   showOriginSphere: boolean;
@@ -206,6 +207,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
   stickRadius,
   lineRadius,
   bondScale,
+  bondMode,
   setMetadata,
   normalLineLength,
   showOriginSphere,
@@ -271,6 +273,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
   const prevModelData = usePrevious(modelData);
   const prevStyle = usePrevious(style);
   const prevBondScale = usePrevious(bondScale);
+  const prevBondMode = usePrevious(bondMode);
 
   useImperativeHandle(ref, () => ({
     setView(view: string) {
@@ -469,7 +472,10 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     setProjectivePointsDistance(null);
     setTriangleAnalysis(null);
 
-    glViewer.current.addModel(modelData, 'pdb', { bondScale });
+    const modelOptions = {
+        bondScale: bondMode === 'calculated' ? bondScale : 0
+    };
+    glViewer.current.addModel(modelData, 'pdb', modelOptions);
     const modelSpec = { model: 0 };
     
     const atoms = glViewer.current.getModel(0)?.selectedAtoms({});
@@ -1887,8 +1893,8 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     );
 
     const modelChanged = modelData !== prevModelData;
-    const styleChanged = style !== prevStyle || bondScale !== prevBondScale;
-    if (modelChanged || styleChanged) {
+    const styleOrBondChanged = style !== prevStyle || bondScale !== prevBondScale || bondMode !== prevBondMode;
+    if (modelChanged || styleOrBondChanged) {
         glViewer.current.zoomTo();
     }
     glViewer.current.render();
@@ -1903,7 +1909,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
       }
     };
   }, [
-    modelData, style, bondScale, atomScale, stickRadius, lineRadius, selectionMode, selectedAtoms, 
+    modelData, style, bondScale, bondMode, atomScale, stickRadius, lineRadius, selectionMode, selectedAtoms, 
     selectedProjectivePoint, inspectionData, normalLineLength, showOriginSphere, originSphereOpacity, ellipticalRadius,
     isolateNodesOnEllipticalSphere, hideNodesOutsideEllipticalSphere, showSphere2, 
     sphere2Opacity, showCylinder, cylinderRadius, cylinderHeight, cylinderAzimuth, cylinderInclination, 

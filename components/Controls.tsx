@@ -1,5 +1,5 @@
 import React from 'react';
-import { DisplayStyle, MoleculeMetadata, SelectionMode, Lattice } from '../types';
+import { DisplayStyle, MoleculeMetadata, SelectionMode, Lattice, BondMode } from '../types';
 import PdbSelectionDialog from './PdbSelectionDialog';
 import SphericalShellsGenerator from './SphericalShellsGenerator';
 
@@ -15,6 +15,8 @@ interface ControlsProps {
   onStickRadiusChange: (radius: number) => void;
   bondScale: number;
   onBondScaleChange: (scale: number) => void;
+  bondMode: BondMode;
+  onBondModeChange: (mode: BondMode) => void;
   metadata: MoleculeMetadata | null;
   projectivePointRadius: number;
   onProjectivePointRadiusChange: (radius: number) => void;
@@ -46,6 +48,8 @@ const Controls: React.FC<ControlsProps> = ({
   onStickRadiusChange,
   bondScale,
   onBondScaleChange,
+  bondMode,
+  onBondModeChange,
   metadata,
   projectivePointRadius,
   onProjectivePointRadiusChange,
@@ -288,7 +292,35 @@ const Controls: React.FC<ControlsProps> = ({
               </div>
             </div>
             <div className="pt-2">
-              <label htmlFor="bond-scale-slider" className="block text-sm font-medium text-gray-300">
+                <label className="block text-sm font-medium text-gray-300 mb-2">Bond Generation:</label>
+                <div className="flex items-center gap-4 rounded-md bg-gray-900/50 p-2 border border-gray-600">
+                    <label className="flex items-center gap-2 cursor-pointer text-gray-300 text-sm">
+                    <input
+                        type="radio"
+                        name="bond-mode"
+                        value="calculated"
+                        checked={bondMode === 'calculated'}
+                        onChange={() => onBondModeChange('calculated')}
+                        className="h-4 w-4 bg-gray-700 border-gray-600 text-cyan-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500"
+                    />
+                    <span>Calculated</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-gray-300 text-sm">
+                    <input
+                        type="radio"
+                        name="bond-mode"
+                        value="conect"
+                        checked={bondMode === 'conect'}
+                        onChange={() => onBondModeChange('conect')}
+                        className="h-4 w-4 bg-gray-700 border-gray-600 text-cyan-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500"
+                    />
+                    <span>CONECT Only</span>
+                    </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Use distance ('Calculated') or only PDB file `CONECT` records.</p>
+            </div>
+            <div className="pt-2">
+              <label htmlFor="bond-scale-slider" className={`block text-sm font-medium ${bondMode === 'calculated' ? 'text-gray-300' : 'text-gray-500'}`}>
                 Stick Length Tolerance: <span className="font-bold text-cyan-400">{bondScale.toFixed(2)}</span>
               </label>
               <input
@@ -299,10 +331,11 @@ const Controls: React.FC<ControlsProps> = ({
                 step="0.05"
                 value={bondScale}
                 onChange={(e) => onBondScaleChange(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={bondMode !== 'calculated'}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Increase to show connection between more distant nodes.
+                (Only for 'Calculated' bonds). Increase to connect more distant nodes.
               </p>
             </div>
             <div>
