@@ -469,7 +469,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
       glViewer.current.addSphere({ center: omegaVec, radius: ellipticalRadius, color: 'white', opacity: originSphereOpacity });
     }
 
-    const planeRadius = axesLength;
+    const planeRadius = axesLength / 2;
     const planeHeight = cylinderHeight;
     const planeOpacity = 0.4;
     
@@ -1796,7 +1796,7 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     );
 
     const modelChanged = modelData !== prevModelData;
-    const styleOrBondChanged = style !== prevStyle || bondScale !== prevBondScale;
+    const styleOrBondChanged = style !== prevStyle || bondScale !== prevBondScale || bondMode !== prevBondMode;
     if (modelChanged || styleOrBondChanged) {
         glViewer.current.zoomTo();
     }
