@@ -1,3 +1,5 @@
+
+
 import React, { useState, useCallback } from 'react';
 import { TRIANGLE_LATTICE, SQUARE_LATTICE } from './generator/constants';
 import type { Coordinate, Shells, LatticeType } from './generator/types';
@@ -87,12 +89,64 @@ const UserGuideDialog = ({ onClose }: { onClose: () => void }) => (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4 animate-fade-in" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="user-guide-title">
       <div className="bg-gray-800 text-gray-300 rounded-lg shadow-2xl shadow-cyan-500/10 max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="sticky top-0 bg-gray-800/80 backdrop-blur-sm p-6 flex justify-between items-center border-b border-gray-700">
-          <h2 id="user-guide-title" className="text-2xl font-bold text-cyan-400">User Guide</h2>
+          <h2 id="user-guide-title" className="text-2xl font-bold text-cyan-400">Spherical Shells Generator - User Guide</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl font-bold leading-none" aria-label="Close user guide">&times;</button>
         </div>
         <div className="p-6 space-y-6">
-            <section><h3 className="text-xl font-semibold text-cyan-300 mb-2">How to Use the Applet</h3><div className="space-y-4 text-gray-400"><p><strong>1. Set Generation Parameters:</strong></p><ul className="list-disc list-inside space-y-2 pl-4"><li><strong>Number of Shells:</strong> Input the maximum shell number you want to generate. Shell 0 (the origin) is always included.</li><li><strong>Lattice Selection:</strong> Choose between <code className="bg-gray-700 px-1 rounded">'Triangle'</code> and <code className="bg-gray-700 px-1 rounded">'Square'</code> lattices. These define the initial 12 points in Shell 1 and the vectors for expansion.</li><li><strong>Scale the output PDB file coordinates:</strong> Check this box to scale the output PDB file coordinates by a factor (1.8 for Triangle, 1.86 for Square). This is useful for visualization in molecular modeling software, approximating standard bond lengths. This only affects PDB file downloads.</li></ul><p><strong>2. Generate Shells:</strong></p><p className="pl-4">Click the <strong>Generate</strong> button. The calculation may take a few moments for a large number of shells.</p><p><strong>3. Review and Select Results:</strong></p><ul className="list-disc list-inside space-y-2 pl-4"><li>The results table displays each generated shell, the number of spheres it contains, and the cumulative total.</li><li>Use the checkboxes to select specific shells for download. The <strong>Select/Unselect All</strong> button can be used for convenience.</li></ul><p><strong>4. Download Files:</strong></p><ul className="list-disc list-inside space-y-2 pl-4"><li><strong>Save Coordinates:</strong> A <code className="bg-gray-700 px-1 rounded">.txt</code> file with raw, unscaled `[x, y, z]` coordinates for all shells.</li><li><strong>Save Sphere Counts:</strong> A <code className="bg-gray-700 px-1 rounded">.csv</code> file listing the sphere count per shell.</li><li><strong>Generate PDB File:</strong> A single <code className="bg-gray-700 px-1 rounded">.pdb</code> file containing all generated shells combined.</li><li><strong>Generate PDB files - Selected Shells:</strong> A single <code className="bg-gray-700 px-1 rounded">.pdb</code> file containing only the shells you selected.</li><li><strong>Generate Shells PDB files:</strong> Downloads an individual <code className="bg-gray-700 px-1 rounded">.pdb</code> file for each shell.</li><li><strong>Generate Full Shells PDB files:</strong> Downloads a series of cumulative <code className="bg-gray-700 px-1 rounded">.pdb</code> files. For example, file <code className="bg-gray-700 px-1 rounded">Sphere_005_TR.pdb</code> will contain all spheres from shells 0 through 5.</li></ul></div></section>
-            <section><h3 className="text-xl font-semibold text-cyan-300 mb-2">The Generation Algorithm</h3><div className="space-y-4 text-gray-400"><p>The generator uses a geometric expansion algorithm, which is a form of breadth-first search, to discover the coordinates of spheres in concentric shells.</p><p><strong>Initialization:</strong></p><ul className="list-disc list-inside space-y-2 pl-4"><li>The process starts with a single sphere at the origin <code className="bg-gray-700 px-1 rounded">(0,0,0)</code>, which defines <strong>Shell 0</strong>.</li><li><strong>Shell 1</strong> is defined by a base set of 12 coordinate vectors. These vectors correspond to the vertices of an icosahedron (for the 'Triangle' lattice) or a cuboctahedron (for the 'Square' lattice), normalized to a unit sphere.</li><li>A queue, called the "frontier", is initialized with the 12 spheres of Shell 1.</li></ul><p><strong>Expansion Loop:</strong></p><ol className="list-decimal list-inside space-y-2 pl-4"><li>The algorithm takes the first sphere from the frontier (the `center` sphere).</li><li>It generates 12 potential new neighbor spheres by adding each of the 12 base lattice vectors to the `center` sphere's coordinates.</li><li>For each potential new sphere, it checks if it has been discovered before. This uniqueness check is vital to prevent redundant calculations and ensure correctness.</li><li>If the sphere is new:<ul className="list-disc list-inside space-y-1 pl-6 mt-1"><li>Its shell number is calculated based on its squared distance from the origin (<code className="bg-gray-700 px-1 rounded">d² = x² + y² + z²</code>). This value is rounded to the nearest integer.</li><li>The new sphere is added to the list for its calculated shell number.</li><li>The new sphere is also added to the end of the frontier queue to be processed later.</li></ul></li><li>The algorithm repeats this loop, processing the next sphere in the frontier, until the frontier is empty. This process guarantees that all spheres are discovered in an outward-expanding order.</li></ol></div></section>
+            <section>
+              <h3 className="text-xl font-semibold text-cyan-300 mb-2">1. How to Use the Generator</h3>
+              <div className="space-y-4 text-gray-400">
+                <p><strong>Step 1: Set Generation Parameters</strong></p>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  <li><strong>Number of Shells:</strong> Input the maximum shell number you want to generate. Shell 0 (the origin) is always included.</li>
+                  <li><strong>Lattice Selection:</strong> Choose between <code className="bg-gray-700 px-1 rounded">'Triangle'</code> and <code className="bg-gray-700 px-1 rounded">'Square'</code> lattices. These define the initial 12 points in Shell 1 and the vectors for expansion.</li>
+                  <li><strong>Scale the output PDB file coordinates:</strong> Check this box to multiply the output coordinates in PDB files by a factor (1.8 for Triangle, 1.86 for Square). This is useful for visualization in other software, as it approximates standard bond lengths. This only affects downloaded PDB files, not the data loaded into the viewer.</li>
+                </ul>
+                <p><strong>Step 2: Generate Shells</strong></p>
+                <p className="pl-4">Click the <strong>Generate</strong> button. The calculation may take a few moments for a large number of shells.</p>
+                <p><strong>Step 3: Review and Select Results</strong></p>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  <li>The results table displays each generated shell, the number of spheres (nodes) it contains, and the cumulative total.</li>
+                  <li>Use the checkboxes to select specific shells for your output. The <strong>Select/Unselect All</strong> button can be used for convenience.</li>
+                </ul>
+                <p><strong>Step 4: Output Files</strong></p>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  <li><strong>Load to Viewer:</strong> Loads the <em>selected</em> shells directly into the main application viewer.</li>
+                  <li><strong>Save Coordinates:</strong> A <code className="bg-gray-700 px-1 rounded">.txt</code> file with raw, unscaled `[x, y, z]` coordinates for all generated shells.</li>
+                  <li><strong>Save Sphere Counts:</strong> A <code className="bg-gray-700 px-1 rounded">.csv</code> file listing the sphere count per shell.</li>
+                  <li><strong>Generate PDB File:</strong> A single <code className="bg-gray-700 px-1 rounded">.pdb</code> containing *all* generated shells combined.</li>
+                  <li><strong>Generate PDB files - Selected Shells:</strong> A single <code className="bg-gray-700 px-1 rounded">.pdb</code> containing only the shells you *selected*.</li>
+                  <li><strong>Generate Shells PDB files:</strong> Downloads an individual <code className="bg-gray-700 px-1 rounded">.pdb</code> file for *each* generated shell.</li>
+                  <li><strong>Generate Full Shells PDB files:</strong> Downloads a series of cumulative <code className="bg-gray-700 px-1 rounded">.pdb</code> files. For example, the file for Shell 5 will contain all spheres from shells 0 through 5.</li>
+                </ul>
+              </div>
+            </section>
+            <section>
+              <h3 className="text-xl font-semibold text-cyan-300 mb-2">2. The Generation Algorithm</h3>
+              <div className="space-y-4 text-gray-400">
+                <p>The generator uses a geometric expansion algorithm, a form of breadth-first search, to discover the coordinates of spheres in concentric shells.</p>
+                <p><strong>Initialization:</strong></p>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  <li>The process starts with a single sphere at the origin <code className="bg-gray-700 px-1 rounded">(0,0,0)</code>, which defines <strong>Shell 0</strong>.</li>
+                  <li><strong>Shell 1</strong> is defined by a base set of 12 coordinate vectors. These vectors correspond to the vertices of an icosahedron (for 'Triangle' lattice) or a cuboctahedron (for 'Square' lattice), normalized to a unit sphere.</li>
+                  <li>A queue, called the "frontier", is initialized with the 12 spheres of Shell 1.</li>
+                </ul>
+                <p><strong>Expansion Loop:</strong></p>
+                <ol className="list-decimal list-inside space-y-2 pl-4">
+                  <li>The algorithm takes the first sphere from the frontier (the `center` sphere).</li>
+                  <li>It generates 12 potential new neighbor spheres by adding each of the 12 base lattice vectors to the `center` sphere's coordinates.</li>
+                  <li>For each potential new sphere, it checks if it has been discovered before. This uniqueness check is vital to prevent redundant calculations.</li>
+                  <li>If the sphere is new:
+                    <ul className="list-disc list-inside space-y-1 pl-6 mt-1">
+                      <li>Its shell number is calculated based on its squared distance from the origin (<code className="bg-gray-700 px-1 rounded">d² = x² + y² + z²</code>), which is then rounded to the nearest integer.</li>
+                      <li>The new sphere is added to the list for its calculated shell number.</li>
+                      <li>The new sphere is also added to the end of the frontier queue to be processed later.</li>
+                    </ul>
+                  </li>
+                  <li>This loop repeats until the frontier is empty, guaranteeing all connected spheres are discovered in an outward-expanding order.</li>
+                </ol>
+              </div>
+            </section>
         </div>
         <div className="sticky bottom-0 bg-gray-800/80 backdrop-blur-sm p-4 text-right border-t border-gray-700"><button onClick={onClose} className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-md transition-colors">Close</button></div>
       </div>
@@ -143,8 +197,7 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
             const center = frontier[head];
             head++;
             for (const transform of lattice) {
-                // FIX: Explicitly cast Coordinate elements to number to resolve arithmetic operation error.
-                const newCoord: Coordinate = [(center[0] as number) + (transform[0] as number), (center[1] as number) + (transform[1] as number), (center[2] as number) + (transform[2] as number)];
+                const newCoord: Coordinate = [Number(center[0]) + Number(transform[0]), Number(center[1]) + Number(transform[1]), Number(center[2]) + Number(transform[2])];
                 const key = stringifyCoord(newCoord);
                 if (!allFoundCoords.has(key)) {
                     allFoundCoords.add(key);
@@ -289,8 +342,8 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
     const filenamePrefix = useExpansion ? 'PDB_' : 'PS_';
     const sortedShells = [...shells.entries()].sort((a, b) => a[0] - b[0]);
     const latticeSuffix = latticeType === 'triangle' ? 'TR' : 'SQ';
-    for (const [shellNum, coords] of sortedShells) {
-        // FIX: Add a type guard to ensure coords is an array before iterating over it.
+
+    for (const [shellNum, coords] of sortedShells as [number, Coordinate[]][]) {
         if (!Array.isArray(coords) || coords.length === 0) continue;
         let pdbContent = getPdbHeader(`SHELL ${shellNum} FOR ${latticeType.toUpperCase()} LATTICE`, useExpansion);
         const atomsForConect: { index: number, coord: Coordinate }[] = [];
@@ -327,16 +380,18 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
     const sortedShells = [...shells.entries()].sort((a, b) => a[0] - b[0]);
     const maxShell = sortedShells.length > 0 ? sortedShells[sortedShells.length - 1][0] : 0;
     const latticeSuffix = latticeType === 'triangle' ? 'TR' : 'SQ';
-    const allShellCoords = new Map(sortedShells);
-    for (let currentMaxShell = 0; currentMaxShell <= maxShell; currentMaxShell++) {
-        let pdbContent = getPdbHeader(`FULL SHELLS 0-${currentMaxShell} FOR ${latticeType.toUpperCase()} LATTICE`, useExpansion);
-        let atomIndex = 1;
-        const atomsForConect: { index: number, coord: Coordinate }[] = [];
-        for (let i = 0; i <= currentMaxShell; i++) {
-            const coords = allShellCoords.get(i);
-            if (!coords) continue;
-            const sortedCoords = [...coords].sort((a,b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
-            for (const coord of sortedCoords) {
+    const cumulativeCoords: Coordinate[] = [];
+
+    for (let i = 0; i <= maxShell; i++) {
+        const shellCoords = shells.get(i);
+        if (shellCoords) {
+            cumulativeCoords.push(...shellCoords);
+            let pdbContent = getPdbHeader(`FULL SHELLS 0-${i} FOR ${latticeType.toUpperCase()} LATTICE`, useExpansion);
+            const atomsForConect: { index: number, coord: Coordinate }[] = [];
+            let atomIndex = 1;
+            const sortedCumulativeCoords = [...cumulativeCoords].sort((a,b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
+
+            for (const coord of sortedCumulativeCoords) {
                 const expandedCoord: Coordinate = [coord[0] * expansionFactor, coord[1] * expansionFactor, coord[2] * expansionFactor];
                 const [x, y, z] = expandedCoord;
                 atomsForConect.push({ index: atomIndex, coord: expandedCoord });
@@ -344,109 +399,164 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
                 pdbContent += line + '\n';
                 atomIndex++;
             }
+            pdbContent += generateConectRecords(atomsForConect, distanceThreshold);
+            pdbContent += `END\n`;
+
+            const blob = new Blob([pdbContent], { type: 'chemical/x-pdb' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const paddedShellNum = String(i).padStart(3, '0');
+            link.download = `${filenamePrefix}Full_${paddedShellNum}_${latticeSuffix}.pdb`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
-        if (atomIndex === 1) continue;
-        pdbContent += generateConectRecords(atomsForConect, distanceThreshold);
-        pdbContent += `END\n`;
-        const blob = new Blob([pdbContent], { type: 'chemical/x-pdb' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const paddedShellNum = String(currentMaxShell).padStart(3, '0');
-        link.download = `${filenamePrefix}Sphere_${paddedShellNum}_${latticeSuffix}.pdb`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
     }
   }, [shells, latticeType, useExpansion]);
 
-  const handleCountsDownload = useCallback(() => {
+  const handleCSVDownload = useCallback(() => {
     if (shells.size === 0) return;
-    let fileContent = 'Shell Number,Number of Spheres\n';
-    fileContent += `# Lattice Type: ${latticeType.charAt(0).toUpperCase() + latticeType.slice(1)}\n`;
-    const sortedShellKeys = [...shells.keys()].sort((a, b) => a - b);
-    const maxShell = sortedShellKeys.length > 0 ? sortedShellKeys[sortedShellKeys.length - 1] : 0;
-    for (let i = 0; i <= maxShell; i++) {
-        const coords = shells.get(i);
-        const count = coords ? coords.length : 0;
-        fileContent += `${i},${count}\n`;
+    let csvContent = 'Shell,Sphere_Count,Cumulative_Count\n';
+    const sortedShells = [...shells.entries()].sort((a, b) => a[0] - b[0]);
+    let cumulativeCount = 0;
+    for (const [shellNum, coords] of sortedShells) {
+        const count = coords.length;
+        cumulativeCount += count;
+        csvContent += `${shellNum},${count},${cumulativeCount}\n`;
     }
-    const blob = new Blob([fileContent], { type: 'text/csv;charset=utf-8' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `sphere_shell_${latticeType}_counts.csv`;
+    link.download = `sphere_shells_${latticeType}_counts.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }, [shells, latticeType]);
-
-  const handleCheckboxChange = (shellNum: number) => {
-    setSelectedShells(prevSelected => {
-        const newSelected = new Set(prevSelected);
-        if (newSelected.has(shellNum)) newSelected.delete(shellNum); else newSelected.add(shellNum);
-        return newSelected;
+  
+  const toggleShellSelection = (shellNum: number) => {
+    setSelectedShells(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(shellNum)) {
+            newSet.delete(shellNum);
+        } else {
+            newSet.add(shellNum);
+        }
+        return newSet;
     });
   };
 
-  const sortedShells = Array.from(shells.entries()).sort((a, b) => a[0] - b[0]);
-  const maxShell = sortedShells.length > 0 ? sortedShells[sortedShells.length - 1][0] : 0;
-  let cumulativeCount = 0;
-  const fullShellList = Array.from({ length: maxShell + 1 }, (_, i) => {
-      const shellData = shells.get(i);
-      const count = shellData ? shellData.length : 0;
-      cumulativeCount += count;
-      return { shellNum: i, count: count, partialSum: cumulativeCount };
-  });
-
-  const handleSelectAllToggle = () => {
-    if (selectedShells.size < fullShellList.length) setSelectedShells(new Set(fullShellList.map(s => s.shellNum)));
-    else setSelectedShells(new Set());
+  const toggleSelectAll = () => {
+    if (shells.size > 0 && selectedShells.size === shells.size) {
+        setSelectedShells(new Set());
+    } else {
+        setSelectedShells(new Set(shells.keys()));
+    }
   };
-  const allShellsSelected = fullShellList.length > 0 && selectedShells.size === fullShellList.length;
+
+  const sortedShells = shells.size > 0 ? [...shells.entries()].sort((a, b) => a[0] - b[0]) : [];
+  let cumulativeSpheres = 0;
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 animate-fade-in" onClick={onClose}>
-      <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col border border-gray-700" onClick={(e) => e.stopPropagation()}>
-        <header className="flex justify-between items-center p-4 border-b border-gray-700 shrink-0">
-          <h1 className="text-2xl font-bold text-cyan-400">Spherical Shells Generator - CPS Geometry</h1>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors text-2xl" aria-label="Close dialog">&times;</button>
-        </header>
+    <>
+      {isUserGuideOpen && <UserGuideDialog onClose={() => setIsUserGuideOpen(false)} />}
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-40 p-4 animate-fade-in" onClick={onClose}>
+        <div className="bg-gray-800 text-gray-300 rounded-lg shadow-2xl shadow-cyan-500/10 w-full max-w-5xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <header className="flex justify-between items-center p-4 border-b border-gray-700">
+            <h2 className="text-xl font-bold text-cyan-400">Spherical Shells Generator</h2>
+            <div className="flex items-center gap-4">
+              <button onClick={() => setIsUserGuideOpen(true)} className="text-sm text-cyan-400 hover:underline">User Guide</button>
+              <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl font-bold leading-none">&times;</button>
+            </div>
+          </header>
 
-        <main className="flex-grow p-6 overflow-y-auto">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-2xl shadow-cyan-500/10 p-6 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              <div>
-                <label htmlFor="shells-input" className="block font-medium text-gray-300 mb-2">Number of Shells</label>
-                <div className="flex gap-4"><input id="shells-input" type="number" value={numShellsInput} onChange={(e) => setNumShellsInput(e.target.value)} min="1" className="flex-grow w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition" placeholder="e.g., 10" disabled={isCalculating} /><button onClick={handleGenerate} disabled={isCalculating} className="flex-shrink-0 flex justify-center items-center bg-cyan-600 hover:bg-cyan-500 disabled:bg-cyan-800 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-md transition-all duration-300 transform hover:scale-105">{isCalculating ? <><LoaderIcon /> Calculating...</> : 'Generate'}</button></div>
-                <div className="text-right mt-2"><button onClick={() => setIsUserGuideOpen(true)} className="text-sm text-cyan-400 hover:text-cyan-300 underline focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded">User Guide...</button></div>
+          <div className="flex-grow flex p-4 gap-4 overflow-hidden">
+            {/* Left Panel: Controls */}
+            <div className="w-1/3 flex flex-col gap-4">
+              <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700">
+                <h3 className="font-semibold text-cyan-300 mb-3">1. Generation Parameters</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="num-shells" className="block text-sm font-medium text-gray-400 mb-1">Number of Shells</label>
+                    <input type="number" id="num-shells" value={numShellsInput} onChange={(e) => setNumShellsInput(e.target.value)} min="1" className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:ring-2 focus:ring-cyan-500" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Lattice Selection</label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="lattice" value="triangle" checked={latticeType === 'triangle'} onChange={() => setLatticeType('triangle')} className="h-4 w-4 bg-gray-700 border-gray-600 text-cyan-600 focus:ring-cyan-500" /><span>Triangle</span></label>
+                      <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="lattice" value="square" checked={latticeType === 'square'} onChange={() => setLatticeType('square')} className="h-4 w-4 bg-gray-700 border-gray-600 text-cyan-600 focus:ring-cyan-500" /><span>Square</span></label>
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-400"><input type="checkbox" checked={useExpansion} onChange={(e) => setUseExpansion(e.target.checked)} className="h-4 w-4 bg-gray-700 border-gray-600 text-cyan-600 focus:ring-cyan-500" /><span>Scale output PDB coordinates</span></label>
+                </div>
               </div>
-              <fieldset><legend className="block font-medium text-gray-300 mb-2">Lattice Expansion Factor Selection</legend><div className="flex flex-col gap-4 rounded-md bg-gray-900 p-3 border border-gray-700"><div className="flex items-center gap-6"><label className="flex items-center gap-2 cursor-pointer text-gray-300"><input type="radio" name="lattice-type" value="triangle" checked={latticeType === 'triangle'} onChange={() => setLatticeType('triangle')} disabled={isCalculating} className="h-4 w-4 bg-gray-700 border-gray-600 text-cyan-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500" /><span>Triangle</span></label><label className="flex items-center gap-2 cursor-pointer text-gray-300"><input type="radio" name="lattice-type" value="square" checked={latticeType === 'square'} onChange={() => setLatticeType('square')} disabled={isCalculating} className="h-4 w-4 bg-gray-700 border-gray-600 text-cyan-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500" /><span>Square</span></label></div><div className="border-t border-gray-700/50 pt-3"><label className="flex items-center gap-2 cursor-pointer text-gray-300"><input type="checkbox" checked={useExpansion} onChange={(e) => setUseExpansion(e.target.checked)} disabled={isCalculating} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500" /><span>Scale the output PDB file coordinates</span></label></div></div></fieldset>
+              <button onClick={handleGenerate} disabled={isCalculating} className="w-full flex items-center justify-center bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-md transition-colors disabled:bg-gray-600 disabled:cursor-wait">
+                {isCalculating ? <><LoaderIcon /> Calculating...</> : 'Generate'}
+              </button>
+              {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
+              
+              <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700 flex-grow">
+                 <h3 className="font-semibold text-cyan-300 mb-3">3. Output Files</h3>
+                 <div className="grid grid-cols-1 gap-2">
+                    <button onClick={handleLoadToViewer} disabled={shells.size === 0 || selectedShells.size === 0} className="output-btn bg-green-600 hover:bg-green-500 disabled:bg-gray-600"><LoadToViewerIcon /> Load to Viewer</button>
+                    <button onClick={handleDownload} disabled={shells.size === 0} className="output-btn bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-600"><DownloadIcon /> Save Coordinates (.txt)</button>
+                    <button onClick={handleCSVDownload} disabled={shells.size === 0} className="output-btn bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-600"><CountsIcon /> Save Sphere Counts (.csv)</button>
+                    <button onClick={handlePdbDownload} disabled={shells.size === 0} className="output-btn bg-sky-600 hover:bg-sky-500 disabled:bg-gray-600"><PdbIcon /> PDB File (All Shells)</button>
+                    <button onClick={handleSelectedShellsPdbDownload} disabled={shells.size === 0 || selectedShells.size === 0} className="output-btn bg-sky-600 hover:bg-sky-500 disabled:bg-gray-600"><SelectedPdbIcon /> PDB File (Selected)</button>
+                    <button onClick={handleIndividualPdbDownload} disabled={shells.size === 0} className="output-btn bg-amber-600 hover:bg-amber-500 disabled:bg-gray-600"><PdbFilesIcon /> Individual PDBs (Each)</button>
+                    <button onClick={handleFullPdbDownload} disabled={shells.size === 0} className="output-btn bg-amber-600 hover:bg-amber-500 disabled:bg-gray-600"><FullPdbIcon /> Cumulative PDBs (Full)</button>
+                 </div>
+              </div>
             </div>
-            {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
+
+            {/* Right Panel: Results */}
+            <div className="w-2/3 p-4 bg-gray-900/50 rounded-lg border border-gray-700 flex flex-col">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-semibold text-cyan-300">2. Generation Results</h3>
+                <button onClick={toggleSelectAll} disabled={shells.size === 0} className="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded-md disabled:opacity-50">
+                  {shells.size > 0 && selectedShells.size === shells.size ? 'Unselect All' : 'Select All'}
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-grow">
+                {shells.size > 0 ? (
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs text-cyan-300 uppercase bg-gray-700 sticky top-0">
+                      <tr>
+                        <th scope="col" className="p-2 w-12"><input type="checkbox" checked={shells.size > 0 && selectedShells.size === shells.size} onChange={toggleSelectAll} className="h-4 w-4 bg-gray-800 border-gray-600 text-cyan-600 focus:ring-cyan-500" /></th>
+                        <th scope="col" className="p-2">Shell #</th>
+                        <th scope="col" className="p-2">Spheres</th>
+                        <th scope="col" className="p-2">Cumulative Spheres</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-gray-800">
+                      {sortedShells.map(([shellNum, coords]) => {
+                        cumulativeSpheres += coords.length;
+                        return (
+                          <tr key={shellNum} className="border-b border-gray-700 hover:bg-gray-700/50">
+                            <td className="p-2"><input type="checkbox" checked={selectedShells.has(shellNum)} onChange={() => toggleShellSelection(shellNum)} className="h-4 w-4 bg-gray-800 border-gray-600 text-cyan-600 focus:ring-cyan-500" /></td>
+                            <td className="p-2 font-medium text-white">{shellNum}</td>
+                            <td className="p-2">{coords.length.toLocaleString()}</td>
+                            <td className="p-2">{cumulativeSpheres.toLocaleString()}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500 italic">
+                    {isCalculating ? 'Generating shells...' : 'No data generated yet.'}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-          {shells.size > 0 && !isCalculating && (
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-2xl shadow-cyan-500/10 p-6 animate-fade-in">
-              <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-semibold text-cyan-400">Results</h2><button onClick={handleSelectAllToggle} className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1 px-3 rounded-md text-sm transition-colors">{allShellsSelected ? 'Unselect All Shells' : 'Select All Shells'}</button></div>
-              <ul className="space-y-1 max-h-96 overflow-y-auto pr-2">{fullShellList.map(({ shellNum, count, partialSum }) => (<li key={shellNum} className="bg-gray-900/70 py-2 px-4 rounded-md grid grid-cols-[auto_1fr_1fr_1fr] items-center border border-gray-700 gap-4"><input type="checkbox" checked={selectedShells.has(shellNum)} onChange={() => handleCheckboxChange(shellNum)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-cyan-500 cursor-pointer" /><span className="font-medium text-gray-300">Shell {shellNum}</span><span className="text-cyan-400 font-mono bg-gray-800 px-2 py-1 rounded-full text-sm text-center">{count.toLocaleString()} spheres</span><span className="text-gray-400 font-mono text-sm text-right">Total: {partialSum.toLocaleString()}</span></li>))}</ul>
-              <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
-                <button onClick={handleLoadToViewer} className="flex items-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-md transition-colors"><LoadToViewerIcon />Load to Viewer</button>
-                <button onClick={handleDownload} className="flex items-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors"><DownloadIcon />Save Coordinates</button>
-                <button onClick={handleCountsDownload} className="flex items-center bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded-md transition-colors"><CountsIcon />Save Sphere Counts</button>
-                <button onClick={handlePdbDownload} className="flex items-center bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-md transition-colors"><PdbIcon />Generate PDB File</button>
-                <button onClick={handleSelectedShellsPdbDownload} className="flex items-center bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-md transition-colors"><SelectedPdbIcon />Generate PDB files - Selected Shells</button>
-                <button onClick={handleIndividualPdbDownload} className="flex items-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-md transition-colors"><PdbFilesIcon />Generate Shells PDB files</button>
-                <button onClick={handleFullPdbDownload} className="flex items-center bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 px-4 rounded-md transition-colors"><FullPdbIcon />Generate Full Shells PDB files</button>
-              </div>
-            </div>
-          )}
-        </main>
-        {isUserGuideOpen && <UserGuideDialog onClose={() => setIsUserGuideOpen(false)} />}
+        </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 export default SphericalShellsGenerator;

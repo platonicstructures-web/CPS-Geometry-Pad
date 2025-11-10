@@ -9,9 +9,9 @@ const styles = `
   .guide-content h1 { font-size: 2.25rem; }
   .guide-content h2 { font-size: 1.75rem; }
   .guide-content h3 { font-size: 1.25rem; color: #67e8f9; border-bottom: none; }
-  .guide-content p { margin-bottom: 1rem; }
+  .guide-content p, .guide-content ul { margin-bottom: 1rem; color: #cbd5e1; }
   .guide-content code { background-color: #374151; color: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Courier New', Courier, monospace; }
-  .guide-content ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+  .guide-content ul { padding-left: 1.5rem; }
   .guide-content li { margin-bottom: 0.5rem; }
   .guide-content strong { color: #a5f3fc; }
   .guide-content .panel-name { font-weight: bold; color: #facc15; }
@@ -21,71 +21,69 @@ const contentHTML = `
   <h1>User Guide</h1>
   <p>Welcome to the Platonic Structures Geometry Pad! This guide will walk you through the features of this powerful tool for exploring molecular geometry and stereographic projections.</p>
 
-  <h2>1. Getting Started: Loading a Structure</h2>
-  <p>Before you can analyze a structure, you need to load one. You can do this from the <span class="panel-name">Left Panel (Tab 1)</span> in three ways:</p>
+  <h2>1. Loading a Structure (<span class="panel-name">Left Panel - Tab 1</span>)</h2>
+  <p>To begin, you need to load a structure. You have four options:</p>
   <ul>
-    <li><strong>Spherical Shells...:</strong> Opens a generator to create complex spherical shell structures on the fly. You can configure the number of shells, lattice type, and other parameters, then load the result directly into the viewer.</li>
-    <li><strong>Load local .pdb file:</strong> Click this button to open a file dialog and select a <code>.pdb</code> file from your computer.</li>
+    <li><strong>Spherical Shells...:</strong> Opens a generator to create complex spherical shell structures. Configure parameters like lattice type and number of shells, then load the result directly into the viewer.</li>
+    <li><strong>Open...:</strong> Click to open a file dialog and select a local <code>.pdb</code> file from your computer.</li>
+    <li><strong>Select...:</strong> Opens a library of curated Platonic structures available for you to load instantly.</li>
     <li><strong>Load from URL:</strong> Paste a direct link to a <code>.pdb</code> file into the input field and click "Load".</li>
-    <li><strong>Select from Library:</strong> Click the "Select..." button to open a dialog with a curated list of platonic structures to load.</li>
   </ul>
-  <p>Once loaded, you'll see information about the structure, like its title and the number of atoms, in the metadata display box.</p>
+  <p>Once loaded, key information about the structure appears in the metadata display box.</p>
 
   <h2>2. Navigating the 3D Viewer</h2>
-  <p>The central part of the application is the 3D viewer. You can interact with the loaded structure using your mouse:</p>
+  <p>The central viewer is your main workspace. Use your mouse to interact with the model:</p>
   <ul>
     <li><strong>Rotate:</strong> Click and drag with the left mouse button.</li>
     <li><strong>Zoom:</strong> Use the mouse scroll wheel.</li>
     <li><strong>Pan (Move):</strong> Click and drag with the right mouse button (or hold <code>Ctrl</code> and drag with the left).</li>
   </ul>
-  <p>You can also use the controls in the <strong>Top Bar</strong> to set standard camera views (Front, Top, etc.), change the viewer background color, and toggle the visibility of the X, Y, and Z axes.</p>
-
+  <p>The <strong>Top Bar</strong> offers further view controls: set standard camera angles (Front, Top, etc.), change the background color, and toggle the visibility of the XYZ axes and reference planes.</p>
+  
   <h2>3. Customizing Appearance (<span class="panel-name">Left Panel - Tab 1</span>)</h2>
-  <p>You can change how the structure is rendered to suit your needs.</p>
+  <p>Adjust the visual representation of the structure to your needs.</p>
   <ul>
-    <li><strong>Display Style:</strong> Choose from styles like <code>Lines</code>, <code>Sticks</code>, <code>Spheres</code>, or the classic <code>Ball & Stick</code>. The <code>Hide</code> option makes the entire structure invisible.</li>
-    <li><strong>Stick Length Tolerance:</strong> This slider determines the maximum distance between two nodes for a "stick" (bond) to be drawn between them. Increase it to connect more distant nodes.</li>
-    <li><strong>Node Size:</strong> Controls the size of the spheres in <code>Sphere</code> and <code>Ball & Stick</code> modes.</li>
-    <li><strong>Stick Radius:</strong> Controls the thickness of the sticks.</li>
+    <li><strong>Display Style:</strong> Choose from styles like <code>Sphere</code>, <code>Ball & Stick</code>, or hide the model completely.</li>
+    <li><strong>Bond Generation:</strong>
+        <ul>
+            <li><code>Calculated</code>: Automatically creates bonds based on a distance threshold, controlled by the <strong>Length Tolerance</strong> slider.</li>
+            <li><code>CONECT Only</code>: Only draws bonds explicitly defined in the PDB file's <code>CONECT</code> records.</li>
+        </ul>
+    </li>
+    <li><strong>Size & Radius Sliders:</strong> Control the size of nodes, thickness of sticks, and radius of projection lines and intersection points.</li>
+    <li><strong>Lattice System:</strong> Switch between <strong>Triangle</strong> and <strong>Square</strong> lattice definitions, adjust their respective lattice factors, and use the <strong>Convert</strong> button to transform a loaded structure from one system to the other.</li>
   </ul>
-
-  <h2>4. Measurements & Inspection (<span class="panel-name">Left Panel - Tab 2</span>)</h2>
-  <p>This panel is the core of the analysis toolkit. First, select an <strong>Interaction Mode</strong>:</p>
+  
+  <h2>4. Analysis & Measurement (<span class="panel-name">Left Panel - Tab 2</span>)</h2>
+  <p>This is the core analysis toolkit. First, select an <strong>Interaction Mode</strong>:</p>
   <ul>
-    <li><strong>Node Mode:</strong> Select a single node to view its properties and stereographic projection data.</li>
-    <li><strong>Distance Mode:</strong> Select two nodes to measure the distance and angle between them.</li>
-    <li><strong>Triangle Mode:</strong> Select three nodes to analyze the triangle they form, including its plane equation and projected properties.</li>
-    <li><strong>Inspection Mode:</strong> Select a projected point on one of the planes to analyze its relationship to the 3D structure and its inverted counterpart.</li>
+    <li><strong>Node Mode:</strong> Select a single node to view its 3D properties and all its corresponding 2D stereographic projection data.</li>
+    <li><strong>Distance Mode:</strong> Select two nodes to measure the 3D distance, the angle they form at the origin, and the distances/angles between their projected points on the 2D planes.</li>
+    <li><strong>Triangle Mode:</strong> Select three nodes to analyze the 3D triangle they form. This reveals side lengths, the 3D plane equation, and properties of the projected 2D triangles.</li>
+    <li><strong>Inspection Mode:</strong> A powerful mode where you can select <em>projected points</em> directly on the 2D planes to analyze their properties, including geometric and complex inversion.</li>
   </ul>
-
-  <h3>Hover Info</h3>
-  <p>As you move your mouse over nodes or projected points in the viewer, this box provides real-time information, such as the node's ID, its distance from the origin, or the 2D coordinates of the projected point.</p>
-
-  <h3>Selection Info Panel</h3>
-  <p>Once you select elements according to the current mode, this panel populates with detailed information, including coordinates, distances, angles, plane equations, and intersection data with various geometric guides.</p>
+  <p>The <strong>Hover Info</strong> box provides real-time data as you move your mouse over elements, while the <strong>Selection Info</strong> panel shows detailed calculations for your current selection.</p>
 
   <h2>5. Stereographic Projection (<span class="panel-name">Right Panel - Tab 1</span>)</h2>
-  <p>This panel controls the geometric guides used for stereographic projection. The core idea is to project points from a central origin (Omega) through the nodes of your structure onto a plane.</p>
+  <p>This panel controls the geometric elements used for stereographic projection. The projection is cast from a central origin point, <strong>Omega (Ω)</strong>, through the structure's nodes, and onto 2D planes.</p>
   <ul>
-    <li><strong>Geometric Guides:</strong> You can toggle the visibility of various spheres and planes (Primary and Antipodal) that serve as projection surfaces or geometric references.</li>
-    <li><strong>Plane/Sphere Orientation:</strong> The <strong>Azimuth</strong> and <strong>Inclination</strong> sliders control the orientation of the projection planes and associated Riemann spheres. This effectively changes the direction of the projection.</li>
-    <li><strong>CPS Lines & Projective Points:</strong> Toggle these to see the lines extending from the origin through each node, and the points where those lines intersect the projection planes.</li>
+    <li><strong>Omega (Ω):</strong> This is the center of projection. You can move its XYZ coordinates.</li>
+    <li><strong>Elliptical Sphere:</strong> A reference sphere centered at Omega. You can change its radius and use it to filter the view, isolating or hiding nodes based on their distance from the origin.</li>
+    <li><strong>Riemann Sphere & Planes:</strong> These are the projection surfaces. The <strong>Primary</strong> plane is in front of Omega, and the <strong>Antipodal</strong> plane is behind it. Their orientation is controlled by the Azimuth and Inclination sliders.</li>
+    <li><strong>Visibility Toggles:</strong> Show or hide all geometric guides, the <strong>CPS Lines</strong> (projection lines from Omega), and the resulting <strong>Projective Points</strong> where the lines intersect the planes.</li>
   </ul>
-
-  <h2>6. Custom Geometry (<span class="panel-name">Right Panel - Tab 2</span>)</h2>
-  <p>This advanced panel allows you to create your own geometric elements to inspect the projection space.</p>
+  
+  <h2>6. Custom Geometry & Duality (<span class="panel-name">Right Panel - Tab 2</span>)</h2>
+  <p>This advanced panel allows you to create your own geometric elements to probe the projection space and explore the principle of duality.</p>
   <ul>
-    <li><strong>Create Node/Line:</strong> Define one or two points in 3D space using the coordinate sliders and inputs. The app will normalize these points and place them on a reference sphere.</li>
-    <li><strong>Inspector Panel:</strong> Once created, a detailed inspector appears, showing all the same intersection and projection data as a regular node. For a line, it also calculates the 3D plane it defines with the origin and the corresponding 2D line on the projection plane.</li>
-    <li><strong>Dual Geometry:</strong> This panel also visualizes concepts of duality, such as showing the 2D projective line that is "dual" to a selected 3D point.</li>
-  </ul>
-
-  <h2>7. Panel Management (Top Bar)</h2>
-  <p>The top bar provides controls to manage your workspace:</p>
-  <ul>
-      <li><strong>Panels Buttons:</strong> Show or hide the left and right control panels to maximize viewer space.</li>
-      <li><strong>Left/Right Panel Toggles:</strong> Switch between Tab 1 and Tab 2 for each respective panel.</li>
-      <li><strong>User Guide:</strong> Opens this guide.</li>
+    <li><strong>Create Node/Line:</strong> Use the sliders to define one or two custom points in 3D space. These points are then projected and analyzed just like the nodes of a loaded structure.</li>
+    <li><strong>Duality Explained:</strong>
+      <ul>
+        <li>A <strong>Point</strong> in 3D projects to a <strong>point</strong> in 2D. This 2D point has a corresponding <strong>dual line</strong> on the plane. Its equation is calculated and shown.</li>
+        <li>A <strong>Line</strong> in 3D (defined by two points) forms a <strong>plane</strong> with the origin. This 3D plane projects to a <strong>line</strong> on the 2D plane. The intersection of the dual lines of the two initial points gives the <strong>dual point</strong> of this projected line.</li>
+      </ul>
+    </li>
+    <li><strong>Inspector:</strong> The panel provides a detailed breakdown of all intersections and dual geometry calculations for your custom elements.</li>
   </ul>
 `;
 
