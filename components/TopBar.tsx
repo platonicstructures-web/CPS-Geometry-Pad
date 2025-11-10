@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 interface TopBarProps {
@@ -23,7 +24,6 @@ interface TopBarProps {
   onActiveLeftPanelChange: (panel: 'panel1' | 'panel2') => void;
   activeRightPanel: 'panel1' | 'panel2';
   onActiveRightPanelChange: (panel: 'panel1' | 'panel2') => void;
-  onOpenUserGuide: () => void;
 }
 
 const backgroundOptions: { key: string; label: string }[] = [
@@ -64,11 +64,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onActiveLeftPanelChange,
   activeRightPanel,
   onActiveRightPanelChange,
-  onOpenUserGuide,
 }) => {
-  const handleOpenUserGuide = () => {
-    onOpenUserGuide();
-  };
 
   return (
     <div className="bg-gray-800 p-2 border-b border-gray-700 shadow-md">
@@ -187,12 +183,6 @@ const TopBar: React.FC<TopBarProps> = ({
         >
             {isTranscriptionPanelVisible ? 'Hide T' : 'Show T'}
         </button>
-         <button
-            onClick={handleOpenUserGuide}
-            className="px-3 py-1 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 bg-blue-600 text-white hover:bg-blue-500"
-          >
-            User Guide
-          </button>
       </div>
     </div>
   );

@@ -37,6 +37,7 @@ interface ControlsProps {
   onSquareLatticeFactorChange: (factor: number) => void;
   axesLength: number;
   onAxesLengthChange: (length: number) => void;
+  onOpenUserGuide: () => void;
 }
 
 const Controls: React.FC<ControlsProps> = ({
@@ -72,6 +73,7 @@ const Controls: React.FC<ControlsProps> = ({
   onSquareLatticeFactorChange,
   axesLength,
   onAxesLengthChange,
+  onOpenUserGuide,
 }) => {
   const [pdbUrl, setPdbUrl] = React.useState('');
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -146,9 +148,17 @@ const Controls: React.FC<ControlsProps> = ({
       )}
       <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700 h-full flex flex-col">
         <div className="mb-2">
-          <label className="block text-lg font-semibold mb-2 text-cyan-400">
-            Load Platonic Structure:
-          </label>
+          <div className="flex justify-between items-center mb-2">
+            <label className="block text-lg font-semibold text-cyan-400">
+              Load Platonic Structure:
+            </label>
+            <button
+              onClick={onOpenUserGuide}
+              className="text-sm text-cyan-400 hover:text-cyan-300 underline focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded"
+            >
+              User Guide...
+            </button>
+          </div>
 
           <div className="flex gap-2 mb-2">
             <button
