@@ -5,7 +5,7 @@
       {
         title: '2.1 Hexagonal Lattice',
         structures: [
-          { title: '01. Square Plane', description: '', url: 'https://platonicstructures.com/public/PDB_Library/public/PDB_Library/PlatonicStructures/Catalog/100-10000-001/Intro_Square_Plane.pdb' }, 
+          { title: '01. Square Plane', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-001/Intro_Square_Plane.pdb' }, 
           { title: '02. Hexagonal Plane', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-002/Intro_Hexagonal_Plane.pdb' }, 
           { title: '03. Three Random Square Planes', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-005/Intro_Three_Square_Planes.pdb' }, 
           { title: '04. Three Random Hexagonal Planes', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-006/Intro_Three_Hexagonal_Planes.pdb' }, 
