@@ -149,27 +149,37 @@ const Controls: React.FC<ControlsProps> = ({
           <label className="block text-lg font-semibold mb-2 text-cyan-400">
             Load Platonic Structure:
           </label>
-          <button
-            onClick={() => setIsGeneratorOpen(true)}
-            className="w-full text-center cursor-pointer bg-teal-600 text-white hover:bg-teal-500 px-3 py-1 text-sm rounded-md font-medium transition-colors duration-200 block mb-2"
-          >
-            Spherical Shells...
-          </button>
-          <label 
-              htmlFor="pdb-upload" 
-              className="w-full text-center cursor-pointer bg-gray-700 text-gray-300 hover:bg-gray-600 px-3 py-1 text-sm rounded-md font-medium transition-colors duration-200 block mb-2"
-          >
-            Load local .pdb file...
-          </label>
-          <input 
-            type="file" 
-            id="pdb-upload" 
-            className="hidden" 
-            accept=".pdb"
-            onChange={handleFileChange}
-          />
 
-          <div className="mt-2 flex gap-2">
+          <div className="flex gap-2 mb-2">
+            <button
+              onClick={() => setIsGeneratorOpen(true)}
+              className="flex-grow text-center cursor-pointer bg-teal-600 text-white hover:bg-teal-500 px-3 py-1.5 text-sm rounded-md font-medium transition-colors duration-200"
+            >
+              Spherical Shells...
+            </button>
+            <label 
+                htmlFor="pdb-upload" 
+                className="flex-grow text-center cursor-pointer bg-gray-700 text-gray-300 hover:bg-gray-600 px-3 py-1.5 text-sm rounded-md font-medium transition-colors duration-200"
+            >
+              Open...
+            </label>
+            <input 
+              type="file" 
+              id="pdb-upload" 
+              className="hidden" 
+              accept=".pdb"
+              onChange={handleFileChange}
+            />
+            <button
+                onClick={() => setIsDialogOpen(true)}
+                className="flex-grow bg-gray-600 text-white hover:bg-gray-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500"
+                aria-label="Select PDB from list"
+            >
+                Select...
+            </button>
+          </div>
+
+          <div className="flex gap-2">
               <input
                   type="url"
                   placeholder="Or load from URL..."
@@ -179,13 +189,6 @@ const Controls: React.FC<ControlsProps> = ({
                   className="flex-grow bg-gray-700 border border-gray-600 text-white rounded-md p-1.5 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition"
                   aria-label="Load PDB from URL"
               />
-              <button
-                  onClick={() => setIsDialogOpen(true)}
-                  className="bg-gray-600 text-white hover:bg-gray-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 shrink-0"
-                  aria-label="Select PDB from list"
-              >
-                  Select...
-              </button>
               <button
                   onClick={handleUrlLoadClick}
                   className="bg-cyan-600 text-white hover:bg-cyan-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 shrink-0"
