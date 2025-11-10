@@ -207,75 +207,6 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
         </div>
 
-        <div className="mt-2 mb-4 p-3 bg-gray-700/50 rounded-md border border-gray-600">
-            <div className="flex items-center gap-4 mb-3">
-              <label className="block text-md font-semibold text-cyan-400">
-                Lattice:
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="lattice-type"
-                    value="triangle"
-                    checked={lattice === 'triangle'}
-                    onChange={() => onLatticeChange('triangle')}
-                    className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
-                  />
-                  <span className="text-gray-300">Triangle</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="lattice-type"
-                    value="square"
-                    checked={lattice === 'square'}
-                    onChange={() => onLatticeChange('square')}
-                    className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
-                  />
-                  <span className="text-gray-300">Square</span>
-                </label>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="triangle-factor" className="block text-xs font-medium text-gray-400 mb-1">
-                        Triangle Factor
-                    </label>
-                    <input
-                        id="triangle-factor"
-                        type="number"
-                        step="0.01"
-                        value={triangleLatticeFactor}
-                        onChange={(e) => onTriangleLatticeFactorChange(parseFloat(e.target.value))}
-                        className="w-full bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="square-factor" className="block text-xs font-medium text-gray-400 mb-1">
-                        Square Factor
-                    </label>
-                    <input
-                        id="square-factor"
-                        type="number"
-                        step="0.01"
-                        value={squareLatticeFactor}
-                        onChange={(e) => onSquareLatticeFactorChange(parseFloat(e.target.value))}
-                        className="w-full bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
-                    />
-                </div>
-            </div>
-            <div className="mt-3">
-              <button
-                onClick={onConvert}
-                disabled={!localPdbName}
-                className="w-full bg-amber-600 text-white hover:bg-amber-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-amber-500 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed"
-              >
-                {lattice === 'triangle' ? 'Convert to Square' : 'Convert to Triangle'}
-              </button>
-            </div>
-          </div>
-
         <div>
           <div className="bg-gray-700 p-3 rounded-md h-[120px] overflow-y-auto border border-gray-600 text-sm">
             {metadata ? (
@@ -440,6 +371,75 @@ const Controls: React.FC<ControlsProps> = ({
             </div>
           </div>
         </div>
+
+        <div className="mt-auto p-3 bg-gray-700/50 rounded-md border border-gray-600">
+            <div className="flex items-center gap-4 mb-3">
+              <label className="block text-md font-semibold text-cyan-400">
+                Lattice:
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="lattice-type"
+                    value="triangle"
+                    checked={lattice === 'triangle'}
+                    onChange={() => onLatticeChange('triangle')}
+                    className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                  />
+                  <span className="text-gray-300">Triangle</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="lattice-type"
+                    value="square"
+                    checked={lattice === 'square'}
+                    onChange={() => onLatticeChange('square')}
+                    className="h-4 w-4 bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800"
+                  />
+                  <span className="text-gray-300">Square</span>
+                </label>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label htmlFor="triangle-factor" className="block text-xs font-medium text-gray-400 mb-1">
+                        Triangle Factor
+                    </label>
+                    <input
+                        id="triangle-factor"
+                        type="number"
+                        step="0.01"
+                        value={triangleLatticeFactor}
+                        onChange={(e) => onTriangleLatticeFactorChange(parseFloat(e.target.value))}
+                        className="w-full bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="square-factor" className="block text-xs font-medium text-gray-400 mb-1">
+                        Square Factor
+                    </label>
+                    <input
+                        id="square-factor"
+                        type="number"
+                        step="0.01"
+                        value={squareLatticeFactor}
+                        onChange={(e) => onSquareLatticeFactorChange(parseFloat(e.target.value))}
+                        className="w-full bg-gray-900 border border-gray-600 text-white rounded-md p-1 text-sm text-center focus:ring-2 focus:ring-cyan-500 transition"
+                    />
+                </div>
+            </div>
+            <div className="mt-3">
+              <button
+                onClick={onConvert}
+                disabled={!localPdbName}
+                className="w-full bg-amber-600 text-white hover:bg-amber-500 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-amber-500 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed"
+              >
+                {lattice === 'triangle' ? 'Convert to Square' : 'Convert to Triangle'}
+              </button>
+            </div>
+          </div>
       </div>
     </React.Fragment>
   );
