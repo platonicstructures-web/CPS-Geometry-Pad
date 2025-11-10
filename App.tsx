@@ -356,8 +356,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    fetch(proxyUrl)
+    fetch(url)
       .then(response => {
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
@@ -366,7 +365,7 @@ const App: React.FC = () => {
       })
       .then(data => {
         if (!data || data.trim().length === 0) {
-            throw new Error("Received empty or invalid PDB file. The URL might be incorrect or the proxy failed.");
+            throw new Error("Received empty or invalid PDB file. The URL might be incorrect.");
         }
         const name = url.substring(url.lastIndexOf('/') + 1);
         setError(null);
@@ -374,7 +373,7 @@ const App: React.FC = () => {
       })
       .catch(error => {
         console.error('Failed to fetch PDB from URL:', error);
-        setError(`Failed to fetch PDB from URL. Please check your network connection and ensure the URL is correct and accessible. Error: ${error.message}`);
+        setError(`Failed to fetch PDB from URL. Please check your network connection and ensure the URL is correct and accessible (CORS headers must be set on the server). Error: ${error.message}`);
       });
   };
 

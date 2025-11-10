@@ -15,7 +15,7 @@
       {
         title: '2.2 Hexagonal Lattice',
         structures: [
-            { title: '05. Sphere Nodes - One Plane - Hexagonal Lattice (SS-100-10000-002)', description: '', url: 'https://platonicstructures.com/public/PlatonicStructures_PDB_Library/ThreePlanes.pdb' },
+            { title: '05. Sphere Nodes - One Plane - Hexagonal Lattice (SS-100-10000-002)', description: '', url: 'https://platonicstructures.com/public/PDB_Library/ThreePlanes.pdb' },
             { title: '06. RHD Nodes - One Plane - Hexagonal Lattice (RH-100-10000-002)', description: '', url: 'https://platonicstructures.com/public/PlatonicStructures_PDB_Library/ThreePlanes.pdb' },
             { title: '07. Expanding SS Pattern - One Plane - Hexagonal Lattice (SS_ST-100-10000-002)', description: '', url: 'https://platonicstructures.com/public/PlatonicStructures_PDB_Library/ThreePlanes.pdb' },
             { title: '08. Expanding RH Pattern - One Plane - Hexagonal Lattice (RH_ST-100-10000-002)', description: '', url: 'https://platonicstructures.com/public/PlatonicStructures_PDB_Library/ThreePlanes.pdb' },
