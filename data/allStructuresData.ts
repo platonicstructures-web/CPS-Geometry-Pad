@@ -1,9 +1,9 @@
  export const allStructuresData = [
   {
-    title: '2. Introduction',
+    title: '1. CPS Geometry - Introduction',
     subsections: [
       {
-        title: '2.1 Hexagonal Lattice',
+        title: '1.1 Planar Lattices (Simple Planes and Patterns)',
         structures: [
           { title: '01. Square Plane', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-001/Intro_Square_Plane.pdb' }, 
           { title: '02. Hexagonal Plane', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-002/Intro_Hexagonal_Plane.pdb' }, 
@@ -14,7 +14,7 @@
         ]
       },
       {
-        title: '2.2 Hexagonal Lattice',
+        title: '1.2 Tetrahedral Configurations',
         structures: [	
 { title: '07. Tetrahedron Protium', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-030/Intro_Tetrahedron_Protium.pdb' }, 
 { title: '08. Tetrahedron Deuterium', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-031/Intro_Tetrahedron_Deuterium.pdb' }, 
@@ -23,7 +23,7 @@
         ]
       },
       {
-        title: '2.3 Hexagonal Lattice',
+        title: '1.3 Orthogonal Plane Systems (Square Lattice)',
         structures: [		
 { title: '11. Square Lattice Plane 1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-00000-015/Intro_Square_Lattice_Plane_1.pdb' }, 
 { title: '12. Square Lattice Plane 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-00000-016/Intro_Square_Lattice_Plane_2.pdb' }, 
@@ -32,7 +32,7 @@
         ]
       },
       {
-        title: '2.4 Hexagonal Lattice',
+        title: '1.4 Tetragonal Plane Systems (Hexagonal Lattice Extensions)',
         structures: [		
 { title: '15. Hexagonal Lattice Plane 4', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-00000-010/Intro_Hexagonal_Lattice_Plane_1.pdb' }, 
 { title: '16. Hexagonal Lattice Plane 5', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-00000-011/Intro_Hexagonal_Lattice_Plane_2.pdb' }, 
@@ -42,7 +42,7 @@
         ]
       },
       {
-        title: '2.5 Hexagonal Lattice',
+        title: '1.5 Cartesian Coordinate Systems (Three Axes)',
         structures: [		
 { title: '20. Cartesian Axes System - Small', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-924/Intro_Cartesian_Axes_System_Small.pdb' }, 
 { title: '21. Cartesian Axes System - Medium', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-927/Intro_Cartesian_Axes_System_Medium.pdb' }, 
@@ -51,7 +51,7 @@
 		        ]
       },
       {
-        title: '2.6 Hexagonal Lattice',
+        title: 'Extended Coordinate Networks (Beyond Cartesian)',
         structures: [
 { title: '24. Four Axes Coordinate System', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-926/Intro_Four_Axes_Coordinate_System.pdb' }, 
 { title: '25. More Complete Coordinate System', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-928/Intro_More_Complete_Coordinate_System.pdb' }, 
@@ -61,10 +61,10 @@
     ]
   },
   {
-    title: '3. Platonic Solids',
+    title: '2. CPS Geometry - Platonic Solids',
     subsections: [
         {
-            title: '3.1 Tetrahedrons - Hexagonal Lattice',
+            title: '2.1 Tetrahedral Structures',
             structures: [
 { title: '01. Small Tetrahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10001-001/PlatSolid_SmallThetrahedron.pdb' }, 
 { title: '02. Medium Tetrahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-007/Intro_Central_Sphere_Pattern.pdb' }, 
@@ -78,7 +78,7 @@
         ]
       },
       {
-        title: '2.8 Hexagonal Lattice',
+        title: '2.2 Octahedral Structures',
         structures: [		
 { title: '10. Octahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10002-002/PlatSolid_Octahedron.pdb' }, 
 { title: '11. Octahedron - Thick Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10002-102/PlatSolid_Octahedron_Thick_Walls.pdb' }, 
@@ -89,7 +89,7 @@
         ]
       },
       {
-        title: '2.9 Hexagonal Lattice',
+        title: '2.3 Cubic Structures',
         structures: [		
 { title: '16. Cube', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10003-002/PlatSolid_Cube.pdb' }, 
 { title: '17. Cube - Thick Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10003-102/PlatSolids_Cube_Thick_Walls.pdb' }, 
@@ -100,18 +100,33 @@
         ]
       },
       {
-        title: '2.10 Hexagonal Lattice',
+        title: '2.4 Icosahedral Solids (Base Forms)',
         structures: [		
 { title: '22. Small Icosahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60301-002/PlatSolid_Small_Icosahedron.pdb' }, 
 { title: '23. Bigger Icosahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60303-002/PlatSolid_BiggerIcosahedron.pdb' }, 
+        ]
+      },
+      {
+        title: '2.5 Icosahedral Shells (Full Forms – Thin Walls)',
+        structures: [	
 { title: '24. Icosahedron F1 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60001-002/PlatSolid_Icosahedron_F1_Thin_Walls.pdb' }, 
 { title: '25. Icosahedron F3 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60003-002/PlatSolid_Icosahedron_F3_Thin_Walls.pdb' }, 
 { title: '26. Icosahedron F5 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60005-002/PlatSolid_Icosahedron_F5_Thin_Walls.pdb' }, 
 { title: '27. Icosahedron F7 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60007-002/PlatSolid_Icosahedron_F7_Thin_Walls.pdb' }, 
+        ]
+      },
+      {
+        title: '2.6 Half Icosahedral Shells',
+        structures: [	
 { title: '28. Half Icosahedron F1 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60001-001/PlatSolid_Half_Icosahedron_F1_Thin_Walls.pdb' }, 
 { title: '29. Half Icosahedron F3 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60003-001/PlatSolid_Half_Icosahedron_F3_Thin_Walls.pdb' }, 
 { title: '30. Half Icosahedron F5 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60005-001/PlatSolid_Half_Icosahedron_F5_Thin_Walls.pdb' }, 
 { title: '31. Half Icosahedron F7 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60007-001/PlatSolid_Half_Icosahedron_F7_Thin_Walls.pdb' }, 
+        ]
+      },
+      {
+        title: '2.7 Icosahedral Vertex Patterns',
+        structures: [	
 { title: '32. Icosahedron Vertices - F1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60101-002/PlatSolid_Icosahedron_Vertices_F1.pdb' }, 
 { title: '33. Icosahedron Vertices - F3', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60103-002/PlatSolid_Icosahedron_Vertices_F3.pdb' }, 
 { title: '34. Icosahedron Vertices - F5', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60105-002/PlatSolid_Icosahedron_Vertices_F5.pdb' }, 
@@ -119,12 +134,17 @@
         ]
       },
       {
-        title: '2.11 Hexagonal Lattice',
+        title: '2.8 Icosahedral Face Assemblies',
         structures: [		
 { title: '36. Eight Faces - Icosahedron - F1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60201-002/PlatSolid_Eight_Faces_Icosahedron_F1.pdb' }, 
 { title: '37. Eight Faces - Icosahedron - F3', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60203-002/PlatSolid_Eight_Faces_Icosahedron_F3.pdb' }, 
 { title: '38. Eight Faces - Icosahedron - F5', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60205-002/PlatSolid_Eight_Faces_Icosahedron_F5.pdb' }, 
 { title: '39. Eight Faces - Icosahedron - F7', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60207-002/PlatSolid_Eight_Faces_Icosahedron_F7.pdb' }, 
+        ]
+      },
+      {
+        title: '2.9 Nested Icosahedral Systems',
+        structures: [	
 { title: '40. Nested Shells - Icosahedrons', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60099-002/PlatSolid_Nested_Shells_Icosahedrons_N.pdb' }, 
 { title: '41. Nested Icosahedrons - Eight Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60299-002/PlatSolid_Nested_Icosahedrons_Eight_Faces.pdb' }, 
 { title: '42. Nested Shells - Half Icosahedrons', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/IcosahedronCatalog/T_A_100-60099-001/PlatSolid_Nested_Shells_Half_Icosahedrons.pdb' }, 
@@ -132,7 +152,7 @@
         ]
       },
       {
-        title: '2.12 Hexagonal Lattice',
+        title: '2.10 Dodecahedral Structures (Base Forms)',
         structures: [		
 { title: '44. Dodecahedron Full', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/Dodecahedron_Full_01/PlatSolid_Dodecahedron_Full_small.pdb' }, 
 { title: '45. Half Dodecahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/Dodecahedron_Half_01/PlatSolid_Half_Dodecahedron.pdb' }, 
@@ -141,14 +161,14 @@
         ]
       },
       {
-        title: '2.13 Hexagonal Lattice',
+        title: '2.11 Pentagonal Pyramids',
         structures: [		
 { title: '48. Pentagonal Pyramid', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/T_A_100-50000-004/PlatSolid_Pentagonal_Pyramid.pdb' }, 
 { title: '49. Pentagonal Pyramid - Frame', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/T_A_100-50000-005/PlatSolid_Pentagonal_Pyramid_Frame.pdb' }, 
         ]
       },
       {
-        title: '2.14 Hexagonal Lattice',
+        title: '2.14 Individual Pentagonal Faces',
         structures: [		
 { title: '50. Pentagonal Face 01', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/PentagonalFace_01/PlatSolid_Pentagonal_Face_01.pdb' }, 
 { title: '51. Pentagonal Face 02', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/PentagonalFace_02/PlatSolid_Pentagonal_Face_02.pdb' }, 
@@ -165,16 +185,11 @@
         ]
       },
       {
-        title: '2.15 Hexagonal Lattice',
+        title: '2.15 Multi-Face Pentagonal Assemblies',
         structures: [		
 { title: '62. Two Pentagonal Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/02-TwoPentagonalFaces_01_02/PlatSolid_Two_Pentagonal_Faces.pdb' }, 
 { title: '63. Three Pentagonal Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/03-ThreePentagonalFaces_01_02_05/PlatSolid_Three_Pentagonal_Faces.pdb' }, 
 { title: '64. Four Pentagonal Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/04-FourPentagonalFaces/PlatSolid_Four_Pentagonal_Faces.pdb' }, 
-        ]
-      },
-      {
-        title: '2.16 Hexagonal Lattice',
-        structures: [		
 { title: '65. Five Pentagonal Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/05-FivePentagonalFaces/PlatSolid_Five_Pentagonal_Faces.pdb' }, 
 { title: '66. Six Pentagonal Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/06-SixPentagonalFaces/PlatSolid_Six_Pentagonal_Faces.pdb' }, 
 { title: '67. Seven Pentagonal Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/08-SixPentagonalFaces/PlatSolid_Six_Pentagonal_Faces.pdb' }, 
@@ -186,7 +201,7 @@
         ]
       },
       {
-        title: '2.17 Hexagonal Lattice',
+        title: '2.16 Dual Polyhedral Shells (Dodecahedron–Icosahedron)',
         structures: [		
 { title: '73. Half Dodecahedron - Shell', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/T_A_100_70003-001/PlatSolid_Half_Dodecahedron_Shell.pdb' }, 
 { title: '74. Full Dodecahedron - Shell', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/T_A_100_70003-002/PlatSolid_Full_Dodecahedron_Shell.pdb' }, 
@@ -195,16 +210,21 @@
         ]
       },
       {
-        title: '2.18 Hexagonal Lattice',
+        title: '2.17 Great Stellated Dodecahedron Series',
         structures: [		
 { title: '77. Great Stelled Dodecahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/GreatDodecahedronCatalog/TwelvePentagonalFaces_01-12/PlatSolid_Great_Stelled_Dodeca.pdb' }, 
 { title: '78. Great Stelled Dodecahedron - Two Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/GreatDodecahedronCatalog/EightPentagonalFaces_01-08/PlatSolid_Great_Stelled_2_Faces.pdb' }, 
 { title: '79. Great Stelled Dodecahedron - Four Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/GreatDodecahedronCatalog/FourPentagonalFaces_01_02_03_04/PlatSolid_Great_Stelled_4_Faces.pdb' }, 
         ]
-      },
-      {
-        title: '2.19 Hexagonal Lattice',
-        structures: [		
+      }
+    ]
+  },
+  {
+    title: '3. CPS Geometry - Minimum Surfaces',
+    subsections: [
+        {
+            title: '2.1 Tetrahedral Structures',
+            structures: [
 { title: '00. Rhombic Dodecahedron - F2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10001-001/PlatSolid_SmallThetrahedron.pdb' }, 
 { title: '01. Rhombic Dodecahedron - F4', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10006-001/MinSurf_RH_F4.pdb' }, 
 { title: '02. Rhombic Dodecahedron - F8', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10006-002/MinSurf_RH_F8.pdb' }, 
