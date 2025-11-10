@@ -1,3 +1,5 @@
+
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Header from './components/Header';
 import Controls from './components/Controls';
@@ -144,6 +146,7 @@ const App: React.FC = () => {
   const [syntheticNodeDualPlaneEquation, setSyntheticNodeDualPlaneEquation] = useState<string | null>(null);
 
   const viewerRef = useRef<PdbViewerHandles>(null);
+  const syntheticGeomType = useRef<'node' | 'line' | null>(null);
 
   const currentLatticeFactor = lattice === 'triangle' ? triangleLatticeFactor : squareLatticeFactor;
 
@@ -246,9 +249,10 @@ const App: React.FC = () => {
     }
   }, [syntheticLinePoint1Intersections, syntheticLinePoint2Intersections]);
 
+  // FIX: This effect was causing an infinite loop by depending on state it was setting (syntheticNode, syntheticLinePoints).
+  // It is now refactored to depend only on the slider inputs and a ref that tracks which geometry type is active.
   useEffect(() => {
-    // This effect handles the dynamic updates of synthetic geometry from sliders
-    // AFTER the geometry has been initially created by the user.
+    if (!syntheticGeomType.current) return;
 
     const normalizeAndScale = (xStr: string, yStr: string, zStr:string) => {
       const x = parseFloat(xStr);
@@ -260,27 +264,23 @@ const App: React.FC = () => {
       if (lenValue > 1e-6) {
           return { x: x / lenValue * currentLatticeFactor, y: y / lenValue * currentLatticeFactor, z: z / lenValue * currentLatticeFactor };
       }
-      // Return a default position if input is a zero vector to avoid it disappearing
       return { x: currentLatticeFactor, y: 0, z: 0 };
     };
     
-    // Dynamic update for synthetic node if it exists
-    if (syntheticNode) {
+    if (syntheticGeomType.current === 'node') {
       const updatedNode = normalizeAndScale(syntheticNodeInput.x, syntheticNodeInput.y, syntheticNodeInput.z);
       if (updatedNode) {
           setSyntheticNode(updatedNode);
       }
     }
 
-    // Dynamic update for synthetic line if it exists
-    if (syntheticLinePoints) {
+    if (syntheticGeomType.current === 'line') {
       const p1 = normalizeAndScale(syntheticNodeInput.x, syntheticNodeInput.y, syntheticNodeInput.z);
       const p2 = normalizeAndScale(syntheticNodeInput2.x, syntheticNodeInput2.y, syntheticNodeInput2.z);
       
       if (p1 && p2) {
         setSyntheticLinePoints({ p1, p2 });
 
-        // Also re-calculate the plane equation dynamically
         const normal = cross(p1, p2);
         const unitNormal = normalize(normal);
 
@@ -308,7 +308,7 @@ const App: React.FC = () => {
         }
       }
     }
-  }, [syntheticNodeInput, syntheticNodeInput2, syntheticNode, syntheticLinePoints, currentLatticeFactor]);
+  }, [syntheticNodeInput, syntheticNodeInput2, currentLatticeFactor]);
 
 
   const resetInteractionState = useCallback(() => {
@@ -356,9 +356,8 @@ const App: React.FC = () => {
       return;
     }
 
-    // Direct fetch is used as the target server (platonicstructures.com) supports CORS.
-    // This avoids reliance on potentially unreliable third-party proxies.
-    fetch(url)
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    fetch(proxyUrl)
       .then(response => {
         if (!response.ok) {
           throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
@@ -367,10 +366,10 @@ const App: React.FC = () => {
       })
       .then(data => {
         if (!data || data.trim().length === 0) {
-            throw new Error("Received empty or invalid PDB file. The URL might be incorrect.");
+            throw new Error("Received empty or invalid PDB file. The URL might be incorrect or the proxy failed.");
         }
         const name = url.substring(url.lastIndexOf('/') + 1);
-        setError(null); // Clear previous errors on success
+        setError(null);
         handleLocalFileLoad(data, name);
       })
       .catch(error => {
@@ -393,6 +392,7 @@ const App: React.FC = () => {
 
   const handleCreateSyntheticNode = () => {
     handleClearSyntheticGeometry();
+    syntheticGeomType.current = 'node';
     const x = parseFloat(syntheticNodeInput.x);
     const y = parseFloat(syntheticNodeInput.y);
     const z = parseFloat(syntheticNodeInput.z);
@@ -401,7 +401,7 @@ const App: React.FC = () => {
       if (lenValue > 1e-6) {
         setSyntheticNode({ x: x / lenValue * currentLatticeFactor, y: y / lenValue * currentLatticeFactor, z: z / lenValue * currentLatticeFactor });
       } else {
-        setSyntheticNode({ x: currentLatticeFactor, y: 0, z: 0 }); // Default case
+        setSyntheticNode({ x: currentLatticeFactor, y: 0, z: 0 });
       }
     } else {
       console.error("Invalid input for synthetic node");
@@ -410,6 +410,7 @@ const App: React.FC = () => {
 
   const handleCreateSyntheticLine = () => {
     handleClearSyntheticGeometry();
+    syntheticGeomType.current = 'line';
     const p1_x = parseFloat(syntheticNodeInput.x);
     const p1_y = parseFloat(syntheticNodeInput.y);
     const p1_z = parseFloat(syntheticNodeInput.z);
@@ -423,7 +424,7 @@ const App: React.FC = () => {
             if (lenValue > 1e-6) {
                 return { x: x / lenValue * currentLatticeFactor, y: y / lenValue * currentLatticeFactor, z: z / lenValue * currentLatticeFactor };
             }
-            return { x: currentLatticeFactor, y: 0, z: 0 }; // Default case if vector is zero
+            return { x: currentLatticeFactor, y: 0, z: 0 };
         };
         const p1 = normalizeAndScale(p1_x, p1_y, p1_z);
         const p2 = normalizeAndScale(p2_x, p2_y, p2_z);
@@ -463,6 +464,7 @@ const App: React.FC = () => {
   };
 
   const handleClearSyntheticGeometry = () => {
+    syntheticGeomType.current = null;
     setSyntheticNode(null);
     setSyntheticNodeIntersections(null);
     setSyntheticLinePoints(null);
@@ -547,7 +549,6 @@ const App: React.FC = () => {
           const z = parseFloat(line.substring(46, 54));
           const v = { x, y, z };
 
-          // Rodrigues' rotation formula
           const term1 = scale(v, cosTheta);
           const term2 = scale(cross(axis, v), sinTheta);
           const term3 = scale(axis, dot(axis, v) * (1 - cosTheta));
@@ -567,7 +568,7 @@ const App: React.FC = () => {
           return line.substring(0, 30) + newX + newY + newZ + line.substring(54);
         } catch (e) {
           console.error("Could not parse atom line:", line, e);
-          return line; // Return original line on error
+          return line;
         }
       }
       return line;

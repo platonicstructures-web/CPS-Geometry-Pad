@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { SelectionMode, AtomSpec, IntersectionPoints, IntersectionDistances, ProjectivePointInfo, PlaneIntersectionPoint, TriangleAnalysis, TrianglePlaneAnalysis, HoveredProjectivePointInfo, InspectionData, Lattice } from '../types';
+import { SelectionMode, AtomSpec, IntersectionPoints, IntersectionDistances, ProjectivePointInfo, TriangleAnalysis, TrianglePlaneAnalysis, HoveredProjectivePointInfo, InspectionData, Lattice } from '../types';
+import { IntersectionDetailsDisplay } from './IntersectionDisplay';
+
+
+const distSq = (p1: AtomSpec, p2: AtomSpec, latticeFactor: number) => {
+  const dx = (p1.x - p2.x) / latticeFactor;
+  const dy = (p1.y - p2.y) / latticeFactor;
+  const dz = (p1.z - p2.z) / latticeFactor;
+  return dx * dx + dy * dy + dz * dz;
+};
+
+// Vector math helpers for angle calculation
+const vec = (atom: AtomSpec) => ({ x: atom.x, y: atom.y, z: atom.z });
+const len = (v: {x:number, y:number, z:number}) => Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 
 interface ControlsPanel2Props {
   selectionMode: SelectionMode;
@@ -50,128 +63,6 @@ interface ControlsPanel2Props {
   latticeFactor: number;
 }
 
-// Helper components for displaying intersection info
-const isOrigin = (point: { coords: { x: number; y: number; z: number } }) => {
-  const { x, y, z } = point.coords;
-  return Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6 && Math.abs(z) < 1e-6;
-};
-const filterOrigin = (data: { coords: { x: number; y: number; z: number }; distance: number; }[] | null | undefined) => {
-  if (!data) return null;
-  const filtered = data.filter(p => !isOrigin(p));
-  return filtered.length > 0 ? filtered : null;
-};
-const IntersectionPointDisplay: React.FC<{
-  label: string;
-  data: { coords: { x: number; y: number; z: number }; distance: number; } | { coords: { x: number; y: number; z: number }; distance: number; }[] | null | undefined;
-  labelColor?: string;
-  showSqrt?: boolean;
-  hideDistanceInDetails?: boolean;
-  showDistanceInLabel?: boolean;
-  latticeFactor: number;
-}> = ({ label, data, labelColor = 'text-gray-200', showSqrt = false, hideDistanceInDetails = false, showDistanceInLabel = false, latticeFactor }) => {
-  const getDistanceString = (point: { distance: number }) => {
-    const normalizedDistance = point.distance / latticeFactor;
-    let distanceString = normalizedDistance.toFixed(3);
-
-    if (showSqrt) {
-      const distSq = normalizedDistance * normalizedDistance;
-      const roundedDistSq = Math.round(distSq);
-      if (Math.abs(distSq - roundedDistSq) < 0.01 && roundedDistSq > 0) {
-        distanceString += ` = √${roundedDistSq}`;
-      }
-    }
-    return distanceString;
-  };
-  
-  let finalLabel = label;
-  if (showDistanceInLabel && data && !Array.isArray(data)) {
-      finalLabel = `${label}   D = ${getDistanceString(data)}`;
-  }
-  
-  if (!data) {
-     return (
-        <div>
-          <strong className={`${labelColor} block`}>{finalLabel}</strong>
-          <div className="pl-2 text-gray-500">No intersection</div>
-        </div>
-      );
-  }
-
-  const renderPoint = (point: { coords: { x: number; y: number; z: number }; distance: number }, key?: number) => {
-    const coordsString = `(${(point.coords.x / latticeFactor).toFixed(3)}, ${(point.coords.y / latticeFactor).toFixed(3)}, ${(point.coords.z / latticeFactor).toFixed(3)})`;
-    
-    if (hideDistanceInDetails || showDistanceInLabel) {
-        return (
-            <div key={key} className="pl-2">
-                {coordsString}
-            </div>
-        );
-    }
-    
-    const distancePart = ` D = ${getDistanceString(point)}`;
-    
-    return (
-        <div key={key} className="pl-2">
-            {coordsString}{distancePart}
-        </div>
-    );
-  };
-  
-  return (
-    <div>
-      <strong className={`${labelColor} block`}>{finalLabel}</strong>
-      {Array.isArray(data) ? data.map((p, i) => renderPoint(p, i)) : renderPoint(data)}
-    </div>
-  );
-};
-
-const PlaneIntersectionDisplay: React.FC<{
-  label: string;
-  data: PlaneIntersectionPoint | null | undefined;
-  labelColor?: string;
-  latticeFactor: number;
-}> = ({ label, data, labelColor = 'text-gray-200', latticeFactor }) => {
-  if (!data) {
-    return (<div><strong className={`${labelColor} block`}>{label}</strong><div className="pl-2 text-gray-500">No intersection</div></div>);
-  }
-  return (
-    <div>
-      <strong className={`${labelColor} block`}>{label}</strong>
-      <div className="pl-2">
-        <span>Abs: ({(data.coords.x / latticeFactor).toFixed(3)}, {(data.coords.y / latticeFactor).toFixed(3)}, {(data.coords.z / latticeFactor).toFixed(3)}) D_o = {(data.distanceToOrigin / latticeFactor).toFixed(3)}</span>
-        <div className="pl-2 text-gray-400">
-          <span>Rel: ({(data.relativeCoords.x / latticeFactor).toFixed(3)}, {(data.relativeCoords.y / latticeFactor).toFixed(3)}) D_c = {(data.distanceToPlaneCenter / latticeFactor).toFixed(3)}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-const IntersectionDetailsDisplay: React.FC<{ points: IntersectionPoints; title?: string; showNodeInfo?: boolean; latticeFactor: number; }> = ({ points, title, showNodeInfo = true, latticeFactor }) => (
-  <div className="space-y-1">
-    {showNodeInfo && title && <IntersectionPointDisplay label={title} data={points.node} showSqrt showDistanceInLabel latticeFactor={latticeFactor} />}
-    {showNodeInfo && <IntersectionPointDisplay label="Antipodal Point:" data={points.antipodalNode} hideDistanceInDetails latticeFactor={latticeFactor} />}
-    <PlaneIntersectionDisplay label="Primary Plane Intersection Point:" data={points.primaryPlane} labelColor="text-purple-300" latticeFactor={latticeFactor} />
-    <PlaneIntersectionDisplay label="Antipodal Plane Intersection Point:" data={points.antipodalPlane} labelColor="text-teal-300" latticeFactor={latticeFactor} />
-    <IntersectionPointDisplay label="Elliptical Sphere Intersection Point:" data={points.ellipticalSphere} latticeFactor={latticeFactor} />
-    <IntersectionPointDisplay label="Primary Riemann Intersection Point:" data={filterOrigin(points.primaryRiemannSphere)} labelColor="text-yellow-300" latticeFactor={latticeFactor} />
-    <IntersectionPointDisplay label="Antipodal Riemann Intersection Point:" data={filterOrigin(points.antipodalRiemannSphere)} labelColor="text-orange-300" latticeFactor={latticeFactor} />
-  </div>
-);
-
-const distSq = (p1: AtomSpec, p2: AtomSpec, latticeFactor: number) => {
-  const dx = (p1.x - p2.x) / latticeFactor;
-  const dy = (p1.y - p2.y) / latticeFactor;
-  const dz = (p1.z - p2.z) / latticeFactor;
-  return dx * dx + dy * dy + dz * dz;
-};
-
-// Vector math helpers for angle calculation
-const vec = (atom: AtomSpec) => ({ x: atom.x, y: atom.y, z: atom.z });
-const sub = (v1: {x:number, y:number, z:number}, v2: {x:number, y:number, z:number}) => ({ x: v1.x - v2.x, y: v1.y - v2.y, z: v1.z - v2.z });
-const len = (v: {x:number, y:number, z:number}) => Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-const dot = (v1: {x:number, y:number, z:number}, v2: {x:number, y:number, z:number}) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-
-// FIX: Completed component which was previously truncated, causing syntax errors. Added full implementation and default export.
 const ControlsPanel2: React.FC<ControlsPanel2Props> = ({
   selectionMode,
   onSelectionModeChange,
@@ -223,12 +114,13 @@ const ControlsPanel2: React.FC<ControlsPanel2Props> = ({
   const [activeIntersectionTab, setActiveIntersectionTab] = useState(0);
 
   useEffect(() => {
-    if (selectedAtoms.length > 0) {
-      setActiveIntersectionTab(Math.min(selectedAtoms.length - 1, activeIntersectionTab));
-    } else {
+    if (selectedAtoms.length === 0) {
       setActiveIntersectionTab(0);
+    } else {
+      // Clamp the active tab to be a valid index for the selectedAtoms array
+      setActiveIntersectionTab(prevTab => Math.min(prevTab, selectedAtoms.length - 1));
     }
-  }, [selectedAtoms, activeIntersectionTab]);
+  }, [selectedAtoms]);
 
   const selectionModes: { mode: SelectionMode; label: string }[] = [
     { mode: 'none', label: 'None' },
@@ -493,18 +385,16 @@ const ControlsPanel2: React.FC<ControlsPanel2Props> = ({
                                   <input type="checkbox" checked={showCalculatedInversionPoint} onChange={(e) => onShowCalculatedInversionPointChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-900 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
                                   <span className="text-gray-300">Show calculated point</span>
                               </label>
-                              {/* FIX: Corrected typo in property name from 'calculatedInversionPoint' to 'calculatedInvertedPoint'. */}
                               {inspectionData.calculatedInvertedPoint && (
                                   <div className="mt-2">
                                      <h4 className="font-bold text-orange-400">Calculated Geometric Inversion:</h4>
-                                     {/* FIX: Corrected typo in property name from 'calculatedInversionPoint' to 'calculatedInvertedPoint'. */}
-                                     <PlaneIntersectionDisplay data={inspectionData.calculatedInvertedPoint} label="" labelColor="text-orange-300" latticeFactor={latticeFactor}/>
+                                     <IntersectionDetailsDisplay points={{ primaryPlane: inspectionData.calculatedInvertedPoint }} showNodeInfo={false} latticeFactor={latticeFactor} />
                                   </div>
                               )}
                               {inspectionData.calculatedComplexInvertedPoint && (
                                   <div className="mt-2">
                                      <h4 className="font-bold text-orange-400">Calculated Complex Inversion:</h4>
-                                     <PlaneIntersectionDisplay data={inspectionData.calculatedComplexInvertedPoint} label="" labelColor="text-orange-300" latticeFactor={latticeFactor}/>
+                                     <IntersectionDetailsDisplay points={{ primaryPlane: inspectionData.calculatedComplexInvertedPoint }} showNodeInfo={false} latticeFactor={latticeFactor} />
                                   </div>
                               )}
                           </>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SelectionMode, IntersectionPoints, PlaneIntersectionPoint, Lattice } from '../types';
+import { SelectionMode, IntersectionPoints, Lattice } from '../types';
+import { IntersectionDetailsDisplay } from './IntersectionDisplay';
 
 interface RightControlsProps {
   activeRightPanel: 'panel1' | 'panel2';
@@ -86,67 +87,6 @@ interface RightControlsProps {
   lattice: Lattice;
   latticeFactor: number;
 }
-
-// Helper components for displaying intersection info (also used in ControlsPanel2)
-const isOrigin = (point: { coords: { x: number; y: number; z: number } }) => {
-  const { x, y, z } = point.coords;
-  return Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6 && Math.abs(z) < 1e-6;
-};
-const filterOrigin = (data: { coords: { x: number; y: number; z: number }; distance: number; }[] | null | undefined) => {
-  if (!data) return null;
-  const filtered = data.filter(p => !isOrigin(p));
-  return filtered.length > 0 ? filtered : null;
-};
-const IntersectionPointDisplay: React.FC<{
-  label: string;
-  data: { coords: { x: number; y: number; z: number }; distance: number; } | { coords: { x: number; y: number; z: number }; distance: number; }[] | null | undefined;
-  labelColor?: string;
-  latticeFactor: number;
-}> = ({ label, data, labelColor = 'text-gray-200', latticeFactor }) => {
-  const renderPoint = (point: { coords: { x: number; y: number; z: number }; distance: number }, key?: number) => (
-    <div key={key} className="pl-2">
-      ({(point.coords.x / latticeFactor).toFixed(3)}, {(point.coords.y / latticeFactor).toFixed(3)}, {(point.coords.z / latticeFactor).toFixed(3)}) D = {(point.distance / latticeFactor).toFixed(3)}
-    </div>
-  );
-  return (
-    <div>
-      <strong className={`${labelColor} block`}>{label}</strong>
-      {!data ? <div className="pl-2 text-gray-500">No intersection</div> : (Array.isArray(data) ? data.map((p, i) => renderPoint(p, i)) : renderPoint(data))}
-    </div>
-  );
-};
-const PlaneIntersectionDisplay: React.FC<{
-  label: string;
-  data: PlaneIntersectionPoint | null | undefined;
-  labelColor?: string;
-  latticeFactor: number;
-}> = ({ label, data, labelColor = 'text-gray-200', latticeFactor }) => {
-  if (!data) {
-    return (<div><strong className={`${labelColor} block`}>{label}</strong><div className="pl-2 text-gray-500">No intersection</div></div>);
-  }
-  return (
-    <div>
-      <strong className={`${labelColor} block`}>{label}</strong>
-      <div className="pl-2">
-        <span>Abs: ({(data.coords.x / latticeFactor).toFixed(3)}, {(data.coords.y / latticeFactor).toFixed(3)}, {(data.coords.z / latticeFactor).toFixed(3)}) D_o = {(data.distanceToOrigin / latticeFactor).toFixed(3)}</span>
-        <div className="pl-2 text-gray-400">
-          <span>Rel: ({(data.relativeCoords.x / latticeFactor).toFixed(3)}, {(data.relativeCoords.y / latticeFactor).toFixed(3)}) D_c = {(data.distanceToPlaneCenter / latticeFactor).toFixed(3)}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-const IntersectionDetailsDisplay: React.FC<{ points: IntersectionPoints; title?: string; showNodeInfo?: boolean; latticeFactor: number; }> = ({ points, title, showNodeInfo = true, latticeFactor }) => (
-  <div className="space-y-1">
-    {showNodeInfo && title && <IntersectionPointDisplay label={title} data={points.node} latticeFactor={latticeFactor} />}
-    {showNodeInfo && <IntersectionPointDisplay label="Antipodal Point:" data={points.antipodalNode} latticeFactor={latticeFactor} />}
-    <PlaneIntersectionDisplay label="Primary Plane Intersection Point:" data={points.primaryPlane} labelColor="text-purple-300" latticeFactor={latticeFactor} />
-    <PlaneIntersectionDisplay label="Antipodal Plane Intersection Point:" data={points.antipodalPlane} labelColor="text-teal-300" latticeFactor={latticeFactor} />
-    <IntersectionPointDisplay label="Elliptical Sphere Intersection Point:" data={points.ellipticalSphere} latticeFactor={latticeFactor} />
-    <IntersectionPointDisplay label="Primary Riemann Intersection Point:" data={filterOrigin(points.primaryRiemannSphere)} labelColor="text-yellow-300" latticeFactor={latticeFactor} />
-    <IntersectionPointDisplay label="Antipodal Riemann Intersection Point:" data={filterOrigin(points.antipodalRiemannSphere)} labelColor="text-orange-300" latticeFactor={latticeFactor} />
-  </div>
-);
 
 
 const RightControls: React.FC<RightControlsProps> = ({
