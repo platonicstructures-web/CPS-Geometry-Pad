@@ -373,7 +373,7 @@ const App: React.FC = () => {
       })
       .catch(error => {
         console.error('Failed to fetch PDB from URL:', error);
-        setError(`Failed to fetch PDB from URL. Please check your network connection and ensure the URL is correct and accessible (CORS headers must be set on the server). Error: ${error.message}`);
+        setError(`Failed to fetch PDB from URL. Please check your network connection and ensure the URL is correct and accessible. Error: ${error.message}`);
       });
   };
 

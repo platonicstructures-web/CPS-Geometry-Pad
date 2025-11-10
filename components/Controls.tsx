@@ -112,19 +112,9 @@ const Controls: React.FC<ControlsProps> = ({
     }
   };
 
-  const handleStructureSelect = (url: string) => {
+  const handleStructureSelect = (url: string, title: string) => {
     setIsDialogOpen(false);
-    const transformUrl = (originalUrl: string): string => {
-        const idMatch = originalUrl.match(/(\d{3}-\d{5}-\d{3})/);
-        if (idMatch && idMatch[0]) {
-            const id = idMatch[0];
-            return `https://platonicstructures.com/PlatonicStructures/Catalog/${id}/${id}.pdb`;
-        }
-        console.warn('Could not transform URL, ID not found:', originalUrl);
-        return originalUrl;
-    };
-    const transformedUrl = transformUrl(url);
-    onPdbUrlLoad(transformedUrl);
+    onPdbUrlLoad(url);
   };
 
 
@@ -135,7 +125,7 @@ const Controls: React.FC<ControlsProps> = ({
           onClose={() => setIsDialogOpen(false)}
           title="Load Platonic Structure from Library"
       >
-          <AllStructuresList onStructureSelect={(url, title) => handleStructureSelect(url)} />
+          <AllStructuresList onStructureSelect={(url, title) => handleStructureSelect(url, title)} />
       </Modal>
       {isGeneratorOpen && (
         <SphericalShellsGenerator
