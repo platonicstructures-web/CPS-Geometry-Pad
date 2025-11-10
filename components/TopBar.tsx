@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface TopBarProps {
@@ -73,33 +74,15 @@ const TopBar: React.FC<TopBarProps> = ({
     <div className="bg-gray-800 p-2 border-b border-gray-700 shadow-md">
       <div className="px-4 flex items-center justify-start gap-x-4 gap-y-2 flex-wrap">
         <div className="flex items-center gap-3">
-            <h3 className="text-sm font-semibold text-cyan-400 whitespace-nowrap">Panels:</h3>
-            <button
-                onClick={onToggleLeftPanel}
-                className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
-                  ${
-                    isLeftPanelVisible
-                      ? 'bg-cyan-500 text-white shadow-md'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-                title={isLeftPanelVisible ? 'Hide Left Panel' : 'Show Left Panel'}
-            >
-                {isLeftPanelVisible ? 'Hide L' : 'Show L'}
-            </button>
-            <button
-                onClick={onToggleRightPanel}
-                className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500
-                  ${
-                    isRightPanelVisible
-                      ? 'bg-cyan-500 text-white shadow-md'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-                title={isRightPanelVisible ? 'Hide Right Panel' : 'Show Right Panel'}
-            >
-                {isRightPanelVisible ? 'Hide R' : 'Show R'}
-            </button>
-            <div className="border-l border-gray-600 h-5 self-center"></div>
+          <div className="flex items-center gap-2">
             <span className="text-gray-300 text-sm font-medium">Left:</span>
+            <input
+                type="checkbox"
+                checked={isLeftPanelVisible}
+                onChange={onToggleLeftPanel}
+                title={isLeftPanelVisible ? 'Hide Left Panel' : 'Show Left Panel'}
+                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 cursor-pointer"
+            />
             <div className="flex items-center gap-1.5">
               <label className="flex items-center space-x-1 cursor-pointer">
                   <input type="radio" name="left-panel-toggle" checked={activeLeftPanel === 'panel1'} onChange={() => onActiveLeftPanelChange('panel1')} className="h-4 w-4 rounded-full bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
@@ -110,8 +93,17 @@ const TopBar: React.FC<TopBarProps> = ({
                   <span className="text-gray-300 text-sm">2</span>
               </label>
             </div>
-            <div className="border-l border-gray-600 h-5 self-center"></div>
+          </div>
+          <div className="border-l border-gray-600 h-5 self-center"></div>
+          <div className="flex items-center gap-2">
             <span className="text-gray-300 text-sm font-medium">Right:</span>
+            <input
+                type="checkbox"
+                checked={isRightPanelVisible}
+                onChange={onToggleRightPanel}
+                title={isRightPanelVisible ? 'Hide Right Panel' : 'Show Right Panel'}
+                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800 cursor-pointer"
+            />
             <div className="flex items-center gap-1.5">
               <label className="flex items-center space-x-1 cursor-pointer">
                   <input type="radio" name="right-panel-toggle" checked={activeRightPanel === 'panel1'} onChange={() => onActiveRightPanelChange('panel1')} className="h-4 w-4 rounded-full bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
@@ -122,6 +114,7 @@ const TopBar: React.FC<TopBarProps> = ({
                   <span className="text-gray-300 text-sm">2</span>
               </label>
             </div>
+          </div>
         </div>
 
         <div className="border-l border-gray-600 h-6"></div>
