@@ -131,17 +131,18 @@ const TopBar: React.FC<TopBarProps> = ({
               <input type="checkbox" checked={showAxes} onChange={(e) => onShowAxesChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
               <span className="text-gray-300 text-xs font-medium">Axes</span>
             </label>
+            <span className="text-gray-300 text-xs font-medium">Planes:</span>
             <label className="flex items-center space-x-2 cursor-pointer">
               <input type="checkbox" checked={showXYPlane} onChange={(e) => onShowXYPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-600 focus:ring-offset-gray-800" />
-              <span className="text-gray-300 text-xs font-medium">XY Plane (Blue)</span>
+              <span className="text-gray-300 text-xs font-medium">XY(Blue)</span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
               <input type="checkbox" checked={showXZPlane} onChange={(e) => onShowXZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-600 focus:ring-offset-gray-800" />
-              <span className="text-gray-300 text-xs font-medium">XZ Plane (Green)</span>
+              <span className="text-gray-300 text-xs font-medium">XZ(Green)</span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
               <input type="checkbox" checked={showYZPlane} onChange={(e) => onShowYZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-red-500 focus:ring-red-600 focus:ring-offset-gray-800" />
-              <span className="text-gray-300 text-xs font-medium">YZ Plane (Red)</span>
+              <span className="text-gray-300 text-xs font-medium">YZ(Red)</span>
             </label>
         </div>
 

@@ -114,7 +114,7 @@ const App: React.FC = () => {
 
   // Panel visibility
   const [isLeftPanelVisible, setIsLeftPanelVisible] = useState(true);
-  const [isRightPanelVisible, setIsRightPanelVisible] = useState(true);
+  const [isRightPanelVisible, setIsRightPanelVisible] = useState(false);
   const [isTranscriptionPanelVisible, setIsTranscriptionPanelVisible] = useState(false);
   const [activeLeftPanel, setActiveLeftPanel] = useState<'panel1' | 'panel2'>('panel1');
   const [activeRightPanel, setActiveRightPanel] = useState<'panel1' | 'panel2'>('panel1');
