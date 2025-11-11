@@ -3,7 +3,9 @@ import { allStructuresData } from '../data/allStructuresData';
 
 interface Structure {
   title: string;
-  description: string;
+  // FIX: Made the 'description' property optional to align with the data from 'allStructuresData'
+  // and resolve the type error. This property is not used in the component.
+  description?: string;
   url: string;
 }
 
