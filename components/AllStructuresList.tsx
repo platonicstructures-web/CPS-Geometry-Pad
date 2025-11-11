@@ -23,7 +23,7 @@ const AccordionItem: React.FC<{ subsection: Subsection; onStructureSelect: (url:
     <div className="border-b border-slate-600">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex justify-between items-center p-2 text-left hover:bg-slate-600/50 transition-colors"
+        className="w-full flex justify-between items-center p-1.5 text-left hover:bg-slate-600/50 transition-colors"
         aria-expanded={isOpen}
       >
         <h4 className="font-semibold text-slate-200">{subsection.title}</h4>
@@ -61,7 +61,7 @@ const AllStructuresList: React.FC<AllStructuresListProps> = ({ onStructureSelect
     <div className="p-0 sm:p-4 text-white">
       {allStructuresData.map((section, index) => (
         <div key={index} className="mb-2">
-          <h3 className="text-lg font-bold text-sky-300 p-3 bg-slate-700/50 rounded-t-md">{section.title}</h3>
+          <h3 className="text-lg font-bold text-sky-300 p-2 bg-slate-700/50 rounded-t-md">{section.title}</h3>
           {section.subsections.map((subsection, subIndex) => (
              <AccordionItem key={subIndex} subsection={subsection} onStructureSelect={onStructureSelect} />
           ))}

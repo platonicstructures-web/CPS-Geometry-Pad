@@ -208,7 +208,7 @@ const Controls: React.FC<ControlsProps> = ({
         </div>
 
         <div>
-          <div className="bg-gray-700 p-3 rounded-md h-[120px] overflow-y-auto border border-gray-600 text-sm">
+          <div className="bg-gray-700 p-3 rounded-md h-[120px] overflow-y-auto border border-gray-600 text-xs">
             {metadata ? (
               <ul className="text-gray-300">
                 <li><strong className="text-gray-200">Title:</strong> <span className="text-gray-400">{metadata.title}</span></li>

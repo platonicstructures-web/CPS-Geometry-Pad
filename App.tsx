@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Header from './components/Header';
 import Controls from './components/Controls';
@@ -41,7 +42,7 @@ const App: React.FC = () => {
   const [atomScale, setAtomScale] = useState(0.2);
   const [stickRadius, setStickRadius] = useState(0.05);
   const [bondScale, setBondScale] = useState(1.2);
-  const [bondMode, setBondMode] = useState<BondMode>('calculated');
+  const [bondMode, setBondMode] = useState<BondMode>('conect');
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('none');
   const [selectedAtoms, setSelectedAtoms] = useState<AtomSpec[]>([]);
   const [selectedProjectivePoint, setSelectedProjectivePoint] = useState<ProjectivePointInfo | null>(null);

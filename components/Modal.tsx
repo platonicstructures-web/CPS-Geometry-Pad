@@ -1,4 +1,5 @@
 
+
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -73,7 +74,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, theme =
         className={`relative flex flex-col shadow-2xl overflow-hidden ${containerStyles[size]} ${currentTheme.container}`}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
       >
-        <header className="flex justify-between items-center p-4 border-b border-slate-600 shrink-0">
+        <header className="flex justify-between items-center p-3 border-b border-slate-600 shrink-0">
             <h2 id="modal-title" className="text-xl font-bold text-sky-300">
             {title}
             </h2>
