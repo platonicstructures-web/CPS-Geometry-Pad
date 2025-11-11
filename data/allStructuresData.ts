@@ -339,10 +339,10 @@
     ]
   },
   {
-    title: '3. CPS Geometry - Minimum Surfaces',
+    title: '4. CPS Geometry - Archimedean Solids',
     subsections: [
         {
-            title: '3.1 Rhombic Dodecahedron – Foundational Forms',
+            title: '4.1 Cuboctahedral Systems – F2 to F6',
             structures: [
 { title: '01. Cuboctahedron - F2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-002/ArchSolid_Cuboctahedron_F2.pdb' }, 
 { title: '02. Cuboctahedron - F3', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-003/ArchSolid_Cuboctahedron_F3.pdb' }, 
@@ -351,35 +351,30 @@
 { title: '05. Cuboctahedron - Shell - F5', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-105/ArchSolid_Cuboctahedron_Shell_F5.pdb' }, 
 { title: '06. Cuboctahedron - Frames - F5', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-205/ArchSolid_Cuboctahedron_Frames_F5.pdb' }, 
 { title: '07. Cuboctahedron - F6', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-006/ArchSolid_Cuboctahedron_F6.pdb' }, 
+        ]
+      },
+      {
+        title: '4.2 Cuboctahedral Systems – F7 and Variants',
+        structures: [	
 { title: '08. Cuboctahedron - F7', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-007/ArchSolid_Cuboctahedron_F7.pdb' }, 
 { title: '09. Cuboctahedron Shell - F7', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-107/ArchSolid_Cuboctahedron_Thick_Shell_F7.pdb' }, 
 { title: '10. Cuboctahedron Frames 1 - F7', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-207/ArchSolid_Cuboctahedron_Frames_1_F7.pdb' }, 
 { title: '11. Cuboctahedron Frames 2 - F7', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-307/ArchSolid_Cuboctahedron_Frames_2_F7.pdb' }, 
 { title: '12. Cuboctahedron Frames 3 - F7', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-407/ArchSolid_Cuboctahedron_Frames_3_F7.pdb' }, 
-        ]
-      },
-      {
-        title: '2.32 Hexagonal Lattice',
-        structures: [		
 { title: '13. Cuboctahedron Variety - F6', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-106/ArchSolid_Cuboctahedron_Variety_F6.pdb' }, 
         ]
       },
       {
-        title: '2.33 Hexagonal Lattice',
+        title: '4.3 Small Truncated Tetrahedron Series',
         structures: [		
 { title: '14. Truncated Tetrahedron Very Small', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_TetrahedronVerySmall/ArchSolid_TR_Tetra_Very_Small.pdb' }, 
-		        ]
-      },
-      {
-        title: '2.34 Hexagonal Lattice',
-        structures: [
 { title: '15. Tetrahedron Small - Start', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_TetrahedronSmallStart/ArchSolid_TR_Tetra_Small_Start.pdb' }, 
 { title: '16. Truncated Tetrahedron Small - Components', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_TetrahedronSmallComponents/ArchSolid_TR_Tetra_Small_Comp.pdb' }, 
 { title: '17. Truncated Tetrahedron Small - End', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_TetrahedronSmallEnd/ArchSolid_TR_Tetra_Small_End.pdb' }, 
         ]
       },
       {
-        title: '2.35 Hexagonal Lattice',
+        title: '4.4 Large Truncated Tetrahedron Series',
         structures: [		
 { title: '18. Tetrahedron Big - Start', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_TetrahedronBigStart/ArchSolid_TR_Tetra_Big_Start.pdb' }, 
 { title: '19. Truncated Tetrahedron Big - Components', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_TetrahedronBigComponents/ArchSolid_TR_Tetra_Big_Comp.pdb' }, 
@@ -387,22 +382,17 @@
         ]
       },
       {
-        title: '2.36 Hexagonal Lattice',
+        title: '4.5 Truncated Octahedron Development',
         structures: [		
 { title: '21. Truncated Octahedron - F1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10012-001/ArchSolid_TR_Tetra_Verry_Small.pdb' }, 
-{ title: '22. Truncated Octahedron - F2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10012-002/ArchSolid_TR_Tetra_Small.pdb' }, 
-        ]
-      },
-      {
-        title: '2.37 Hexagonal Lattice',
-        structures: [		
+{ title: '22. Truncated Octahedron - F2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10012-002/ArchSolid_TR_Tetra_Small.pdb' }, 	
 { title: '23. Octahedron Big - Start', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TruncatedOctahedronStart/ArchSolid_TR_Octa_Big_Start.pdb' }, 
 { title: '24. Truncated Octahedron Big - Components', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TruncatedOctahedronComponents/ArchSolid_TR_Octa_Big_Comp.pdb' }, 
 { title: '25. Truncated Octahedron Big - End', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TruncatedOctahedronEnd/ArchSolid_TR_Octa_Big_End.pdb' }, 
         ]
       },
       {
-        title: '2.38 Hexagonal Lattice',
+        title: '4.6 Truncated Cube and Dual Catalan Forms',
         structures: [		
 { title: '26. Catalan Octahedron - Shell', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Cube_CatalanOctahedron_CPS_Shell22/ArchSolid_CatalanOctahedronSmall_Shell_F22.pdb' }, 
 { title: '27. Duality: Catalan Octahedron - Truncated Cube', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Cube_CatalanOctahedron_Morphing_22/ArchSolid_Duality_Catalan_Octa_TR_Cube.pdb' }, 
@@ -411,7 +401,7 @@
         ]
       },
       {
-        title: '2.39 Hexagonal Lattice',
+        title: '4.7 Icosahedral Face Studies',
         structures: [		
 { title: '30. Icosahedron Face - F7', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_01/ArchSolid_Icosahedron_Face_F7.pdb' }, 
 { title: '31. Two Icosahedron Faces - Frame', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_02/ArchSolid_Two_Icosahedron_Faces_Frame.pdb' }, 
@@ -422,30 +412,35 @@
         ]
       },
       {
-        title: '2.40 Hexagonal Lattice',
+        title: '4.8 Truncated Icosahedron – Partial Structures',
         structures: [		
 { title: '36. Eight Faces - Truncated Icosahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_07/ArchSolid_TR_Icosahedron_Eight_Faces.pdb' }, 
 { title: '37. Twenty Faces - Truncated Icosahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_101/ArchSolid_TR_Icosahedron_Twenty_Faces.pdb' }, 
         ]
       },
       {
-        title: '2.41 Hexagonal Lattice',
+        title: '4.9 Dodecahedral Pentagonal Face',
         structures: [		
 { title: '38. Pentagonal Face - Dodecahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/Tutorial/DodecahedronCatalog/PentagonalFace_01/PlatSolid_Pentagonal_Face_01.pdb' }, 
         ]
       },
       {
-        title: '2.42 Hexagonal Lattice',
+        title: '4.10 Truncated Icosahedron – Complete Shells',
         structures: [		
 { title: '39. Twenty Hexagons + 4 Pentagons - Truncated Icosahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_102/ArchSolid_TR_Icosa_20_Faces_04_Penta.pdb' }, 
 { title: '40. Twenty Hexagons + 8 Pentagons - Truncated Icosahedron', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_103/ArchSolid_TR_Icosa_20_Faces_08_Penta.pdb' }, 
 { title: '41. Truncated Icosahedron Shell', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_104/ArchSolid_TR_Icosa_20_Faces_12_Penta.pdb' }, 
 { title: '42. Half Truncated Icosahedron Shell', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/TR_Icosahedron_105/ArchSolid_TR_Icosa_Half.pdb' }, 
         ]
-      },
-      {
-        title: '2.43 Hexagonal Lattice',
-        structures: [		
+      }
+    ]
+  },
+  {
+    title: '5. CPS Geometry - Miscellaneous',
+    subsections: [
+        {
+            title: '5.1 Cuboctahedral Systems – F2 to F6',
+            structures: [	
 { title: '01. Stellated Tetrahedron Thick Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10001-902/Misscell_Stellated_Tetrahedron_Thick_Walls.pdb' }, 
 { title: '02. Stellated Tetrahedron Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10001-903/Misscell_Stellated_Tetrahedron_Thin_Walls.pdb' }, 
         ]
