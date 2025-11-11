@@ -223,7 +223,7 @@
     title: '3. CPS Geometry - Minimum Surfaces',
     subsections: [
         {
-            title: '2.1 Tetrahedral Structures',
+            title: '3.1 Rhombic Dodecahedron – Foundational Forms',
             structures: [
 { title: '00. Rhombic Dodecahedron - F2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10001-001/PlatSolid_SmallThetrahedron.pdb' }, 
 { title: '01. Rhombic Dodecahedron - F4', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10006-001/MinSurf_RH_F4.pdb' }, 
@@ -235,7 +235,7 @@
         ]
       },
       {
-        title: '2.20 Hexagonal Lattice',
+        title: '3.2 Rhombic Dodecahedron – Advanced Variants (F20 Series)',
         structures: [		
 { title: '07. Rhombic Dodecahedron - F20 - Thick Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10006-205/MinSurf_RH_F20_Thin.pdb' }, 
 { title: '08. Rhombic Dodecahedron - F20 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10006-305/MinSurf_RH_F20_Thin_Holes.pdb' }, 
@@ -244,14 +244,9 @@
         ]
       },
       {
-        title: '2.21 Hexagonal Lattice',
+        title: '3.3 . Rhombic Dodecahedron – Planar Sections and Faces',
         structures: [		
-{ title: '11. Rhombic Dodecahedron - One Plane', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-206/MinSurf_RH_Three_Faces.pdb' }, 
-        ]
-      },
-      {
-        title: '2.22 Hexagonal Lattice',
-        structures: [		
+{ title: '11. Rhombic Dodecahedron - One Plane', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-206/MinSurf_RH_Three_Faces.pdb' }, 	
 { title: '12. Rhombic Dodecahedron - Three Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-205/MinSurf_RH_Four_Faces.pdb' }, 
 { title: '13. Rhombic Dodecahedron - Four Faces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10000-012/MinSurf_Two_Sides_Minimum_Surface.pdb' }, 
 { title: '14. Two Sides -  Minimum Surface', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10000-011/MinSurf_Tetrahedron_System.pdb' }, 
@@ -259,25 +254,25 @@
         ]
       },
       {
-        title: '2.23 Hexagonal Lattice',
+        title: '3.4 Minimum Surface Systems – Foundational Forms',
         structures: [		
 { title: '16. Tetrahedron System - Minimum Surfaces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-209/MinSurf_Minimum_Surfaces_C2.pdb' }, 
 { title: '17. Three Minimum Surfaces', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-210/MinSurf_Minimum_Surfaces_Frames_C2.pdb' }, 
+	{ title: '18. Minimum Surfaces - Case 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-211/MinSurf_Minimum_Surfaces_Empty_C2.pdb' }, 
+{ title: '19. Minimum Surfaces Frame - Case 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-212/MinSurf_12_Minimum_Surfaces_C2.pdb' }, 
+{ title: '20. Minimum Surfaces Empty Frame - Case 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-213/MinSurf_12_Minimum_Surfaces_C1.pdb' }, 
         ]
       },
       {
-        title: '2.24 Hexagonal Lattice',
-        structures: [		
-{ title: '18. Minimum Surfaces - Case 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-211/MinSurf_Minimum_Surfaces_Empty_C2.pdb' }, 
-{ title: '19. Minimum Surfaces Frame - Case 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-212/MinSurf_12_Minimum_Surfaces_C2.pdb' }, 
-{ title: '20. Minimum Surfaces Empty Frame - Case 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-213/MinSurf_12_Minimum_Surfaces_C1.pdb' }, 
+        title: '3.5 Minimum Surface Systems – Cube Manifestations',
+        structures: [	
 { title: '21. Twelve Minimum Surfaces - Case 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10006-214/MinSurf_12_Minimum_Surfaces_C3.pdb' }, 
 { title: '22. Twelve Minimum Surfaces - Case 1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10007-306/MinSurf_RH_Frames.pdb' }, 
 { title: '23. Twelve Minimum Surfaces - Case 3', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10007-000/MinSurf_Two_Orthogonal_Planes.pdb' }, 
         ]
       },
       {
-        title: '2.25 Hexagonal Lattice',
+        title: '3.6 Stellated Rhombic Dodecahedra',
         structures: [		
 { title: '24. Stellated Rhombic Dodecahedron F20', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10007-205/MinSurf_Stellated_RH_F20.pdb' }, 
 { title: '25. Stellated Rhombic Dodecahedron F20 - Thin Walls', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10007-206/MinSurf_Stellated_RH_F20_Thin.pdb' }, 
@@ -285,10 +280,15 @@
         ]
       },
       {
-        title: '2.26 Hexagonal Lattice',
+        title: '3.7 Triakis Tetrahedra',
         structures: [		
 { title: '27. Catalan (Triakis) Tetrahedron Small', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10000-015/MinSurf_Catalan_Tetrahedron_Small.pdb' }, 
 { title: '28. Catalan (Triakis) Tetrahedron Big', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/TutorialsCatalog/T_A_100-10000-016/MinSurf_Catalan_Tetrahedron_Big.pdb' }, 
+        ]
+      },
+      {
+        title: '3.8 Catalan (Triakis) Octahedra and Components',
+        structures: [		
 { title: '29. Catalan (Triakis) Octahedron - F22', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/CatalanOctahedronFull_22/MinSurf_Catalan_Octahedron_F22.pdb' }, 
 { title: '30. Catalan (Triakis) Octahedron Shell - F22', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/CatalanOctahedronSmall_Shell_22/MinSurf_Catalan_Octahedron_Shell_22.pdb' }, 
 { title: '31. Catalan (Triakis) Octahedron - F29', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/StrCatalog/CatalanOctahedronSmall_Shell_29/MinSurf_Catalan_Octahedron_F29.pdb' }, 
@@ -299,7 +299,7 @@
         ]
       },
       {
-        title: '2.27 Hexagonal Lattice',
+        title: '3.9 Four-Line Configurations',
         structures: [		
 { title: '36. Four Lines - Scenario 1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-013/MinSurf_Four_Lines_S_1.pdb' }, 
 { title: '37. Four Lines - Scenario 2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-021/MinSurf_Four_Lines_S_2.pdb' }, 
@@ -309,7 +309,7 @@
         ]
       },
       {
-        title: '2.28 Hexagonal Lattice',
+        title: '3.10 Multi-Line Networks (Six to Sixteen Lines)',
         structures: [		
 { title: '41. Six Lines - Scenario 1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-015/MinSurf_Six_Lines.pdb' }, 
 { title: '42. Sixteen Lines - Scenario 1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-017/MinSurf_Sixteen_Lines_S_1.pdb' }, 
@@ -317,28 +317,33 @@
         ]
       },
       {
-        title: '2.29 Hexagonal Lattice',
+        title: '3.11 Tetrahedral Line–Surface Combinations',
         structures: [		
 { title: '44. Tetrahedron and Its Center', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-009/MinSurf_Tetrahedron_Center.pdb' }, 
 { title: '45. Tetrahedron System - Minimum Surfaces Outline', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-010/MinSurf_Tetrahedron_System_Min_Surf_Outline.pdb' }, 
 { title: '46. Tetrahedron Plus Four Lines', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-012/MinSurf_TetrahedronPlus_Four_Lines.pdb' }, 
-{ title: '47. Vertical Line', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-014/MinSurf_Vertical_Line.pdb' }, 
-{ title: '48. Seven Lines - Scenario 1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-016/MinSurf_Seven_Lines_S_1.pdb' }, 
 		        ]
       },
       {
-        title: '2.30 Hexagonal Lattice',
+        title: '3.12 Linear Structures and Scenarios',
         structures: [
+{ title: '47. Vertical Line', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-014/MinSurf_Vertical_Line.pdb' }, 
+{ title: '48. Seven Lines - Scenario 1', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-016/MinSurf_Seven_Lines_S_1.pdb' }, 
 { title: '49. Thirteen Lines', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-019/MinSolid_Thirteen_Lines.pdb' }, 
 { title: '50. Sixteen Lines - Scenario 3', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-023/MinSurf_Sixteen_Lines_S3.pdb' }, 
 { title: '51. Line Segment', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-024/MinSurf_Line_Segment.pdb' }, 
 { title: '52. Orthogonal Lines', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-025/MinSurf_Orthogonal_Lines.pdb' }, 
 { title: '53. Fifty Two Lines', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10000-027/MinSurfFifty_Two_Lines_Lines.pdb' }, 
         ]
-      },
-      {
-        title: '2.31 Hexagonal Lattice',
-        structures: [		
+      }
+    ]
+  },
+  {
+    title: '3. CPS Geometry - Minimum Surfaces',
+    subsections: [
+        {
+            title: '3.1 Rhombic Dodecahedron – Foundational Forms',
+            structures: [
 { title: '01. Cuboctahedron - F2', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-002/ArchSolid_Cuboctahedron_F2.pdb' }, 
 { title: '02. Cuboctahedron - F3', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-003/ArchSolid_Cuboctahedron_F3.pdb' }, 
 { title: '03. Cuboctahedron - F4', description: '', url: 'https://platonicstructures.com/public/PDB_Library/PlatonicStructures/Catalog/100-10011-004/ArchSolid_Cuboctahedron_F4.pdb' }, 
