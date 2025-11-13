@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { SelectionMode, IntersectionPoints, Lattice } from '../types';
 import { IntersectionDetailsDisplay } from './IntersectionDisplay';
@@ -582,11 +583,11 @@ const RightControls: React.FC<RightControlsProps> = ({
                 <div className="flex gap-x-4">
                     <label className="flex items-center space-x-2 cursor-pointer">
                         <input type="checkbox" checked={showCylinder} onChange={(e) => onShowCylinderChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
-                        <span className="text-gray-400 text-sm">Primary</span>
+                        <span className="text-gray-400 text-sm">Primary (Lt Yellow)</span>
                     </label>
                     <label className="flex items-center space-x-2 cursor-pointer">
                         <input type="checkbox" checked={showAntipodalPlane} onChange={(e) => onShowAntipodalPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 focus:ring-offset-gray-800" />
-                        <span className="text-gray-400 text-sm">Antipodal</span>
+                        <span className="text-gray-400 text-sm">Antipodal (Lt Cyan)</span>
                     </label>
                 </div>
             </div>

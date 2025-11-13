@@ -1,7 +1,29 @@
+
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { DisplayStyle, AtomSpec, SelectionMode, MoleculeMetadata, IntersectionPoints, IntersectionDistances, ProjectivePointInfo, PlaneIntersectionPoint, TriangleAnalysis, TrianglePlaneAnalysis, HoveredProjectivePointInfo, InspectionData, Lattice, BondMode } from '../types';
 
 declare const $3Dmol: any;
+
+// Vector math helpers
+const vec = (x: number | {x:number, y:number, z:number}, y?: number, z?: number) => {
+    if (typeof x === 'object') return { x: x.x, y: x.y, z: x.z };
+    return { x: x as number, y: y!, z: z! };
+};
+const add = (v1: any, v2: any) => vec(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+const sub = (v1: any, v2: any) => vec(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+const scale = (v: any, s: number) => vec(v.x * s, v.y * s, v.z * s);
+const len = (v: any) => Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+const dot = (v1: any, v2: any) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+const cross = (v1: any, v2: any) => vec(
+  v1.y * v2.z - v1.z * v2.y,
+  v1.z * v2.x - v1.x * v2.z,
+  v1.x * v2.y - v1.y * v2.x
+);
+const normalize = (v: any) => {
+  const l = len(v);
+  if (l < 1e-6) return vec(0, 0, 0); // handle zero-length vector
+  return scale(v, 1 / l);
+};
 
 export interface PdbViewerHandles {
   setView: (view: string) => void;
@@ -471,15 +493,45 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
 
     const planeOpacity = 0.4;
     
-    // Draw Planes as boxes
+    // Draw Planes as cylinders
     if (showXYPlane) {
-        glViewer.current.addBox({ center: omegaVec, dimensions: { w: axesLength, h: axesLength, d: 0.01 }, color: 'lightblue', opacity: planeOpacity });
+        const normal = vec(0, 0, 1);
+        const halfHeightVec = scale(normal, cylinderHeight / 2);
+        glViewer.current.addCylinder({
+            start: sub(omegaVec, halfHeightVec),
+            end: add(omegaVec, halfHeightVec),
+            radius: cylinderRadius,
+            color: 'lightblue',
+            opacity: planeOpacity,
+            fromCap: true,
+            toCap: true
+        });
     }
     if (showXZPlane) {
-        glViewer.current.addBox({ center: omegaVec, dimensions: { w: axesLength, h: 0.01, d: axesLength }, color: 'lightpink', opacity: planeOpacity });
+        const normal = vec(0, 1, 0);
+        const halfHeightVec = scale(normal, cylinderHeight / 2);
+        glViewer.current.addCylinder({
+            start: sub(omegaVec, halfHeightVec),
+            end: add(omegaVec, halfHeightVec),
+            radius: cylinderRadius,
+            color: 'lightpink',
+            opacity: planeOpacity,
+            fromCap: true,
+            toCap: true
+        });
     }
     if (showYZPlane) {
-        glViewer.current.addBox({ center: omegaVec, dimensions: { w: 0.01, h: axesLength, d: axesLength }, color: 'lightgreen', opacity: planeOpacity });
+        const normal = vec(1, 0, 0);
+        const halfHeightVec = scale(normal, cylinderHeight / 2);
+        glViewer.current.addCylinder({
+            start: sub(omegaVec, halfHeightVec),
+            end: add(omegaVec, halfHeightVec),
+            radius: cylinderRadius,
+            color: 'lightgreen',
+            opacity: planeOpacity,
+            fromCap: true,
+            toCap: true
+        });
     }
     
     const phi = cylinderAzimuth * Math.PI / 180;
@@ -503,34 +555,15 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
     
     if (showCylinder) {
       const halfHeightVec = scale(orientationVec, cylinderHeight / 2);
-      glViewer.current.addCylinder({ start: sub(cylinderCenter, halfHeightVec), end: add(cylinderCenter, halfHeightVec), radius: cylinderRadius, color: 'lightgreen', opacity: 0.7, fromCap: 1, toCap: 1 });
-      
-      // Draw orthogonal diameters on the cylinder base
-      const xStart = sub(cylinderCenter, scale(primaryPlaneXAxis, cylinderRadius));
-      const xEnd = add(cylinderCenter, scale(primaryPlaneXAxis, cylinderRadius));
-      glViewer.current.addCylinder({ start: xStart, end: xEnd, radius: lineRadius * 0.5, color: 'white' });
-
-      const yStart = sub(cylinderCenter, scale(primaryPlaneYAxis, cylinderRadius));
-      const yEnd = add(cylinderCenter, scale(primaryPlaneYAxis, cylinderRadius));
-      glViewer.current.addCylinder({ start: yStart, end: yEnd, radius: lineRadius * 0.5, color: 'white' });
-      
-      const coneLength = cylinderRadius * 0.05;
-      const coneRadius = lineRadius * 4;
-      const xConeEnd = add(xEnd, scale(primaryPlaneXAxis, coneLength));
-      const yConeEnd = add(yEnd, scale(primaryPlaneYAxis, coneLength));
-      glViewer.current.addCylinder({ start: xEnd, end: xConeEnd, radius: coneRadius, radius2: 0, color: 'white', fromCap: true, toCap: true });
-      glViewer.current.addCylinder({ start: yEnd, end: yConeEnd, radius: coneRadius, radius2: 0, color: 'white', fromCap: true, toCap: true });
-      glViewer.current.addLabel("X'", { position: add(xConeEnd, scale(primaryPlaneXAxis, 0.5)), fontColor: 'white', fontSize: 14, showBackground: false });
-      glViewer.current.addLabel("Y'", { position: add(yConeEnd, scale(primaryPlaneYAxis, 0.5)), fontColor: 'white', fontSize: 14, showBackground: false });
-
-      const numSegments = 64;
-      for (let i = 0; i < numSegments; i++) {
-        const angle1 = i * (2 * Math.PI / numSegments);
-        const angle2 = (i + 1) * (2 * Math.PI / numSegments);
-        const p1 = add(cylinderCenter, add(scale(primaryPlaneXAxis, R * Math.cos(angle1)), scale(primaryPlaneYAxis, R * Math.sin(angle1))));
-        const p2 = add(cylinderCenter, add(scale(primaryPlaneXAxis, R * Math.cos(angle2)), scale(primaryPlaneYAxis, R * Math.sin(angle2))));
-        glViewer.current.addCylinder({ start: p1, end: p2, radius: lineRadius * 0.5, color: 'cyan' });
-      }
+      glViewer.current.addCylinder({ 
+          start: sub(cylinderCenter, halfHeightVec), 
+          end: add(cylinderCenter, halfHeightVec), 
+          radius: cylinderRadius, 
+          color: 'lightyellow', 
+          opacity: planeOpacity, 
+          fromCap: true, 
+          toCap: true 
+      });
     }
 
     const shouldCalculateAnti = showAntipodalSphere || showAntipodalPlane || showAntipodalProjectivePointsSet1 || showAntipodalProjectivePointsSet2 || (selectionMode === 'node' && selectedAtoms.length > 0);
@@ -552,33 +585,15 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
         }
         if (showAntipodalPlane) {
             const halfHeightVec = scale(antiOrientationVec, cylinderHeight / 2);
-            glViewer.current.addCylinder({ start: sub(antiCenter, halfHeightVec), end: add(antiCenter, halfHeightVec), radius: cylinderRadius, color: 'plum', opacity: 0.7, fromCap: 1, toCap: 1 });
-            
-            const xStart = sub(antiCenter, scale(antiPlaneXAxis, cylinderRadius));
-            const xEnd = add(antiCenter, scale(antiPlaneXAxis, cylinderRadius));
-            glViewer.current.addCylinder({ start: xStart, end: xEnd, radius: lineRadius * 0.5, color: 'white' });
-      
-            const yStart = sub(antiCenter, scale(antiPlaneYAxis, cylinderRadius));
-            const yEnd = add(antiCenter, scale(antiPlaneYAxis, cylinderRadius));
-            glViewer.current.addCylinder({ start: yStart, end: yEnd, radius: lineRadius * 0.5, color: 'white' });
-
-            const coneLength = cylinderRadius * 0.05;
-            const coneRadius = lineRadius * 4;
-            const xConeEnd = add(xEnd, scale(antiPlaneXAxis, coneLength));
-            const yConeEnd = add(yEnd, scale(antiPlaneYAxis, coneLength));
-            glViewer.current.addCylinder({ start: xEnd, end: xConeEnd, radius: coneRadius, radius2: 0, color: 'white', fromCap: true, toCap: true });
-            glViewer.current.addCylinder({ start: yEnd, end: yConeEnd, radius: coneRadius, radius2: 0, color: 'white', fromCap: true, toCap: true });
-            glViewer.current.addLabel("X'", { position: add(xConeEnd, scale(antiPlaneXAxis, 0.5)), fontColor: 'white', fontSize: 14, showBackground: false });
-            glViewer.current.addLabel("Y'", { position: add(yConeEnd, scale(antiPlaneYAxis, 0.5)), fontColor: 'white', fontSize: 14, showBackground: false });
-
-            const numSegments = 64;
-            for (let i = 0; i < numSegments; i++) {
-              const angle1 = i * (2 * Math.PI / numSegments);
-              const angle2 = (i + 1) * (2 * Math.PI / numSegments);
-              const p1 = add(antiCenter, add(scale(antiPlaneXAxis, R * Math.cos(angle1)), scale(antiPlaneYAxis, R * Math.sin(angle1))));
-              const p2 = add(antiCenter, add(scale(antiPlaneXAxis, R * Math.cos(angle2)), scale(antiPlaneYAxis, R * Math.sin(angle2))));
-              glViewer.current.addCylinder({ start: p1, end: p2, radius: lineRadius * 0.5, color: 'magenta' });
-            }
+            glViewer.current.addCylinder({ 
+                start: sub(antiCenter, halfHeightVec), 
+                end: add(antiCenter, halfHeightVec), 
+                radius: cylinderRadius, 
+                color: 'lightcyan', 
+                opacity: planeOpacity, 
+                fromCap: true, 
+                toCap: true 
+            });
         }
     }
     
@@ -1350,32 +1365,32 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
                 setTrianglePlaneDistanceToOrigin(distanceToOrigin);
     
                 if (showTrianglePlane) {
-                    const [p1_plane, p2_plane, p3_plane] = selectedAtoms.map(a => vec(a.x, a.y, a.z));
-                    const centroid = scale(add(add(p1_plane, p2_plane), p3_plane), 1/3);
-                    const radius = Math.max(len(sub(p1_plane, centroid)), len(sub(p2_plane, centroid)), len(sub(p3_plane, centroid))) * 1.2;
-                    const halfHeightVec = scale(unitNormal_plane, 0.01 / 2);
+                    const [p1_plane_render, p2_plane_render, p3_plane_render] = selectedAtoms.map(a => vec(a.x, a.y, a.z));
+                    const centroid = scale(add(add(p1_plane_render, p2_plane_render), p3_plane_render), 1/3);
+                    const radius = Math.max(len(sub(p1_plane_render, centroid)), len(sub(p2_plane_render, centroid)), len(sub(p3_plane_render, centroid))) * 1.2;
+                    const halfHeightVec = scale(unitNormal_plane, cylinderHeight / 2);
                     glViewer.current.addCylinder({
                         start: sub(centroid, halfHeightVec),
                         end: add(centroid, halfHeightVec),
                         radius: radius,
                         color: 'coral',
                         opacity: 0.5,
-                        fromCap: 1,
-                        toCap: 1
+                        fromCap: true,
+                        toCap: true
                     });
                 }
 
                 if (showParallelPlane) {
                     const parallelPlaneCenter = scale(unitNormal_plane, parallelPlaneDistance);
-                    const halfHeightVec = scale(unitNormal_plane, 0.01 / 2);
+                    const halfHeightVec = scale(unitNormal_plane, cylinderHeight / 2);
                     glViewer.current.addCylinder({
                         start: sub(parallelPlaneCenter, halfHeightVec),
                         end: add(parallelPlaneCenter, halfHeightVec),
                         radius: cylinderRadius,
                         color: 'dodgerblue',
                         opacity: 0.5,
-                        fromCap: 1,
-                        toCap: 1
+                        fromCap: true,
+                        toCap: true
                     });
                 }
                 
@@ -1535,15 +1550,15 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
 
                 if (showSyntheticNodeDualPlane) {
                     const planeCenter = omegaVec;
-                    const halfHeightVec = scale(normal, 0.01 / 2);
+                    const halfHeightVec = scale(normal, cylinderHeight / 2);
                     glViewer.current.addCylinder({ 
                         start: sub(planeCenter, halfHeightVec), 
                         end: add(planeCenter, halfHeightVec), 
                         radius: cylinderRadius * 1.5, 
                         color: 'yellow',
                         opacity: 0.4, 
-                        fromCap: 1, 
-                        toCap: 1 
+                        fromCap: true, 
+                        toCap: true 
                     });
 
                     // Draw the plane's coordinate system
@@ -1677,15 +1692,15 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
         const normal = normalize(cross(p1, p2));
         if (len(normal) > 1e-6) {
           const planeCenter = omegaVec;
-          const halfHeightVec = scale(normal, 0.01 / 2);
+          const halfHeightVec = scale(normal, cylinderHeight / 2);
           glViewer.current.addCylinder({ 
             start: sub(planeCenter, halfHeightVec), 
             end: add(planeCenter, halfHeightVec), 
             radius: cylinderRadius * 1.5, 
             color: 'cyan', 
             opacity: 0.4, 
-            fromCap: 1, 
-            toCap: 1 
+            fromCap: true, 
+            toCap: true 
           });
 
           // Draw the plane's coordinate system
@@ -1802,27 +1817,6 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
 
   return <div ref={viewerRef} className="w-full h-full" aria-label="3D Molecule Viewer" />;
 });
-
-// Vector math helpers
-const vec = (x: number | {x:number, y:number, z:number}, y?: number, z?: number) => {
-    if (typeof x === 'object') return { x: x.x, y: x.y, z: x.z };
-    return { x: x as number, y: y!, z: z! };
-};
-const add = (v1: any, v2: any) => vec(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
-const sub = (v1: any, v2: any) => vec(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
-const scale = (v: any, s: number) => vec(v.x * s, v.y * s, v.z * s);
-const len = (v: any) => Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-const dot = (v1: any, v2: any) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-const cross = (v1: any, v2: any) => vec(
-  v1.y * v2.z - v1.z * v2.y,
-  v1.z * v2.x - v1.x * v2.z,
-  v1.x * v2.y - v1.y * v2.x
-);
-const normalize = (v: any) => {
-  const l = len(v);
-  if (l < 1e-6) return vec(0, 0, 0); // handle zero-length vector
-  return scale(v, 1 / l);
-};
 
 const VIEW_MATRICES: { [key: string]: number[] } = {
   front:  [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],

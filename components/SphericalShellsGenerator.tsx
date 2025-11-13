@@ -197,7 +197,8 @@ const SphericalShellsGenerator: React.FC<SphericalShellsGeneratorProps> = ({ onC
             const center = frontier[head];
             head++;
             for (const transform of lattice) {
-                const newCoord: Coordinate = [Number(center[0]) + Number(transform[0]), Number(center[1]) + Number(transform[1]), Number(center[2]) + Number(transform[2])];
+                // FIX: The redundant Number() calls were causing a type error. Since the types are already numbers, direct addition is sufficient and correct.
+                const newCoord: Coordinate = [center[0] + transform[0], center[1] + transform[1], center[2] + transform[2]];
                 const key = stringifyCoord(newCoord);
                 if (!allFoundCoords.has(key)) {
                     allFoundCoords.add(key);
