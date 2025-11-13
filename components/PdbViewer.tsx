@@ -469,48 +469,17 @@ const PdbViewer = forwardRef<PdbViewerHandles, PdbViewerProps>(({
       glViewer.current.addSphere({ center: omegaVec, radius: ellipticalRadius, color: 'white', opacity: originSphereOpacity });
     }
 
-    const planeRadius = axesLength / 2;
-    const planeHeight = cylinderHeight;
     const planeOpacity = 0.4;
     
+    // Draw Planes as boxes
     if (showXYPlane) {
-        const normal = vec(0, 0, 1);
-        const halfHeightVec = scale(normal, planeHeight / 2);
-        glViewer.current.addCylinder({
-            start: sub(omegaVec, halfHeightVec),
-            end: add(omegaVec, halfHeightVec),
-            radius: planeRadius,
-            color: 'blue',
-            opacity: planeOpacity,
-            fromCap: 1,
-            toCap: 1
-        });
+        glViewer.current.addBox({ center: omegaVec, dimensions: { w: axesLength, h: axesLength, d: 0.01 }, color: 'lightblue', opacity: planeOpacity });
     }
     if (showXZPlane) {
-        const normal = vec(0, 1, 0);
-        const halfHeightVec = scale(normal, planeHeight / 2);
-        glViewer.current.addCylinder({
-            start: sub(omegaVec, halfHeightVec),
-            end: add(omegaVec, halfHeightVec),
-            radius: planeRadius,
-            color: 'green',
-            opacity: planeOpacity,
-            fromCap: 1,
-            toCap: 1
-        });
+        glViewer.current.addBox({ center: omegaVec, dimensions: { w: axesLength, h: 0.01, d: axesLength }, color: 'lightpink', opacity: planeOpacity });
     }
     if (showYZPlane) {
-        const normal = vec(1, 0, 0);
-        const halfHeightVec = scale(normal, planeHeight / 2);
-        glViewer.current.addCylinder({
-            start: sub(omegaVec, halfHeightVec),
-            end: add(omegaVec, halfHeightVec),
-            radius: planeRadius,
-            color: 'red',
-            opacity: planeOpacity,
-            fromCap: 1,
-            toCap: 1
-        });
+        glViewer.current.addBox({ center: omegaVec, dimensions: { w: 0.01, h: axesLength, d: axesLength }, color: 'lightgreen', opacity: planeOpacity });
     }
     
     const phi = cylinderAzimuth * Math.PI / 180;

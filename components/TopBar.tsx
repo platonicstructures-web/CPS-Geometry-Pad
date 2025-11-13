@@ -122,16 +122,16 @@ const TopBar: React.FC<TopBarProps> = ({
             </label>
             <span className="text-gray-300 text-xs font-medium">Planes:</span>
             <label className="flex items-center space-x-2 cursor-pointer">
-              <input type="checkbox" checked={showXYPlane} onChange={(e) => onShowXYPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-600 focus:ring-offset-gray-800" />
-              <span className="text-gray-300 text-xs font-medium">XY(Blue)</span>
+              <input type="checkbox" checked={showXYPlane} onChange={(e) => onShowXYPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-sky-500 focus:ring-sky-600 focus:ring-offset-gray-800" />
+              <span className="text-gray-300 text-xs font-medium">XY(Lt Blue)</span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
-              <input type="checkbox" checked={showXZPlane} onChange={(e) => onShowXZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-600 focus:ring-offset-gray-800" />
-              <span className="text-gray-300 text-xs font-medium">XZ(Green)</span>
+              <input type="checkbox" checked={showXZPlane} onChange={(e) => onShowXZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-pink-500 focus:ring-pink-600 focus:ring-offset-gray-800" />
+              <span className="text-gray-300 text-xs font-medium">XZ(Lt Pink)</span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
-              <input type="checkbox" checked={showYZPlane} onChange={(e) => onShowYZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-red-500 focus:ring-red-600 focus:ring-offset-gray-800" />
-              <span className="text-gray-300 text-xs font-medium">YZ(Red)</span>
+              <input type="checkbox" checked={showYZPlane} onChange={(e) => onShowYZPlaneChange(e.target.checked)} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-600 focus:ring-offset-gray-800" />
+              <span className="text-gray-300 text-xs font-medium">YZ(Lt Green)</span>
             </label>
         </div>
 
